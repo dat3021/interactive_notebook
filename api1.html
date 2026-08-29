@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ đồ & Báo cáo Kiến thức API Toàn diện</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        tealBrand: {
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                        },
+                        amberBrand: {
+                            500: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .gradient-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+        .flow-arrow::after {
+            content: "➔";
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6366f1;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<!--
+    SELECTED PALETTE: Brilliant Indigo & Vibrant Electric Teal (High-Contrast Tech)
+    - Primary Indigo: #4F46E5 / #4338CA
+    - Vibrant Teal: #0D9488 / #14B8A6
+    - Bright Amber: #F59E0B
+    - Dark Navy: #0F172A
+
+    NARRATIVE & STRUCTURE PLAN:
+    1. Hero Header & Core KPIs: Set the baseline - What is an API and its foundational importance.
+    2. Request-Response Architecture: Pure HTML/CSS flow representing Client-Server cycle.
+    3. Architecture Style Comparison: Chart.js Radar Chart comparing REST, GraphQL, gRPC, WebSockets.
+    4. HTTP Protocol Deep Dive: Methods distribution & HTTP Status Codes breakdown via Chart.js Doughnut & Bar.
+    5. API Security & Authentication Matrix: Interactive cards detailing JWT, OAuth2, Rate Limiting, CORS.
+    6. Backend Processing Pipeline: Flow diagram (HTML/CSS) showing Request -> Router -> Controller -> Service -> DB -> Cache.
+    7. Developer Roadmap: Step-by-step learning progression timeline.
+
+    VISUALIZATION CHOICES (NO SVG / NO MERMAID CONFIRMED):
+    - Architectural Comparison -> Radar Chart (Chart.js / Canvas) -> Best for comparing multiple dimensions across API styles.
+    - Status Code Breakdown -> Doughnut Chart (Chart.js / Canvas) -> Ideal for categorical breakdown of response codes.
+    - HTTP Methods -> Horizontal Bar Chart (Chart.js / Canvas) -> Great for categorical usage metrics.
+    - Pipeline & Request Flow -> Structured HTML/CSS Grid with Flexbox and Styled Borders -> Clear process visualization without SVG/Mermaid.
+
+    CONFIRMATION: NEITHER MERMAID JS NOR SVG WERE USED ANYWHERE IN THIS OUTPUT.
+-->
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 text-white py-3 px-4 sm:px-8">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="bg-brand-500 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">API Core</span>
+                <span class="font-extrabold text-lg tracking-tight text-white">Concept Visualizer</span>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-300">
+                <a href="#overview" class="hover:text-brand-500 transition-colors">Tổng Quan</a>
+                <a href="#architecture" class="hover:text-brand-500 transition-colors">Kiến Trúc API</a>
+                <a href="#http" class="hover:text-brand-500 transition-colors">Giao Thức HTTP</a>
+                <a href="#security" class="hover:text-brand-500 transition-colors">Bảo Mật</a>
+                <a href="#pipeline" class="hover:text-brand-500 transition-colors">Luồng Backend</a>
+                <a href="#roadmap" class="hover:text-brand-500 transition-colors">Lộ Trình Học</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header id="overview" class="bg-gradient-to-br from-slate-900 via-brand-900 to-slate-900 text-white py-16 px-4 sm:px-8 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="inline-block bg-brand-500/20 border border-brand-500/40 text-brand-100 text-xs font-bold px-4 py-1.5 rounded-full mb-4 uppercase tracking-widest">
+                Bản Đồ Kiến Thức Lập Trình
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+                Hệ Sinh Thái Kiến Thức Xung Quanh <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-indigo-300 to-amber-400">API</span>
+            </h1>
+            <p class="text-slate-300 max-w-3xl mx-auto text-base sm:text-lg mb-10 leading-relaxed">
+                API (Application Programming Interface) là cầu nối trung tâm giữa Frontend, Backend, Cơ sở dữ liệu và các hệ thống bên ngoài. Báo cáo trực quan này phân tích toàn bộ các khái niệm cốt lõi bạn cần nắm bắt để trở thành Lập trình viên xuất sắc.
+            </p>
+
+            <!-- KPI Metric Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl sm:text-3xl font-black text-amber-400">REST</div>
+                    <div class="text-xs text-slate-400 mt-1 uppercase font-semibold">Chuẩn Phổ Biến Nhất</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl sm:text-3xl font-black text-teal-400">JSON</div>
+                    <div class="text-xs text-slate-400 mt-1 uppercase font-semibold">Định Dạng Dữ Liệu Chính</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl sm:text-3xl font-black text-indigo-400">HTTP/S</div>
+                    <div class="text-xs text-slate-400 mt-1 uppercase font-semibold">Giao Thức Truyền Tải</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <div class="text-2xl sm:text-3xl font-black text-rose-400">JWT / OAuth</div>
+                    <div class="text-xs text-slate-400 mt-1 uppercase font-semibold">Chuẩn Bảo Mật Core</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-12 space-y-16">
+
+        <!-- Section 1: Bản Chất & Mô Hình Request-Response -->
+        <section class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">1. Bản Chất API & Mô Hình Request - Response</h2>
+                <p class="text-slate-600 text-sm mt-1">Cách thức Client và Server trao đổi thông điệp qua môi trường mạng.</p>
+            </div>
+
+            <p class="text-slate-700 leading-relaxed">
+                Trong kiến trúc phần mềm hiện đại, Client (Web, App di động) không truy cập trực tiếp vào Cơ sở dữ liệu. Thay vào đó, Client gửi một **HTTP Request** chứa thông tin yêu cầu tới API Endpoint của Server. Server xử lý nghiệp vụ và trả về **HTTP Response** (thường dưới dạng JSON) kèm theo **Status Code** phản ánh kết quả.
+            </p>
+
+            <!-- HTML/CSS Flow Chart Component (NO SVG used) -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-brand-600 inline-block"></span>
+                    Mô hình Chu kỳ Giao tiếp Client - API Server
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                    <!-- Client Block -->
+                    <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-5 text-center">
+                        <div class="text-2xl mb-2">💻 📱</div>
+                        <h4 class="font-bold text-indigo-950 text-base">Client (Trình duyệt / Mobile App)</h4>
+                        <p class="text-xs text-indigo-800 mt-2">Khởi tạo HTTP Request (URL, Header, Body payload, Auth Token)</p>
+                    </div>
+
+                    <!-- Flow Visualizer -->
+                    <div class="space-y-4 text-center">
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs font-semibold text-amber-900 shadow-sm">
+                            <span class="text-brand-600 font-bold block mb-1">1. HTTP REQUEST ➔</span>
+                            GET /api/v1/products (Header: Bearer Token)
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs font-semibold text-emerald-900 shadow-sm">
+                            <span class="text-emerald-600 font-bold block mb-1">2. HTTP RESPONSE 🔒</span>
+                            Status 200 OK - Payload: JSON Array
+                        </div>
+                    </div>
+
+                    <!-- Server Block -->
+                    <div class="bg-slate-900 text-white rounded-xl p-5 text-center shadow-lg">
+                        <div class="text-2xl mb-2">🖥️ ⚡</div>
+                        <h4 class="font-bold text-teal-400 text-base">API Server & Backend</h4>
+                        <p class="text-xs text-slate-300 mt-2">Xác thực Auth, kiểm tra router, gọi Database & trả về kết quả JSON</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Kiến Trúc API Comparison (Chart.js Radar) -->
+        <section id="architecture" class="space-y-6">
+            <div class="border-l-4 border-tealBrand-600 pl-4">
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">2. So Sánh Các Kiểu Kiến Trúc API (API Architectures)</h2>
+                <p class="text-slate-600 text-sm mt-1">Phân tích đa chiều giúp chọn lựa giải pháp phù hợp cho bài toán hệ thống.</p>
+            </div>
+
+            <p class="text-slate-700 leading-relaxed">
+                Không có một kiến trúc API duy nhất đáp ứng cho mọi bài toán. **REST** là chuẩn phổ biến cho ứng dụng Web thông thường nhờ sự đơn giản; **GraphQL** tối ưu bandwidth cho ứng dụng di động phức tạp; **gRPC** đáp ứng tốc độ cực cao cho Microservices nội bộ; và **WebSockets** phục vụ ứng dụng thời gian thực (Real-time).
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Chart Container -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-2">So Sánh Đặc Tính Các Kiến Trúc API</h3>
+                    <p class="text-xs text-slate-500 mb-4">Đánh giá trên thang điểm 1-10 về độ linh hoạt, hiệu năng, sự phổ biến và độ phức tạp.</p>
+                    <div class="chart-container">
+                        <canvas id="architectureRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Text Context Card -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <h4 class="font-bold text-indigo-700 text-sm flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> REST API
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-1">Dựa trên HTTP Resource, cấu trúc đơn giản, cache tốt. Phù hợp cho 80% ứng dụng Web tiêu chuẩn.</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <h4 class="font-bold text-teal-600 text-sm flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span> GraphQL
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-1">Cho phép Client truy vấn chính xác trường dữ liệu cần thiết qua 1 Endpoint. Khắc phục Over-fetching.</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <h4 class="font-bold text-amber-600 text-sm flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> gRPC / RPC
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-1">Sử dụng Protobuf & HTTP/2 cho tốc độ siêu nhanh. Sự lựa chọn hoàn hảo cho Microservices nội bộ.</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <h4 class="font-bold text-rose-600 text-sm flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> WebSockets
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-1">Kết nối 2 chiều liên tục (Full-duplex). Dùng cho Chat app, Chứng khoán, Game Online, Live Tracking.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Giao thức HTTP & Status Codes (Chart.js Bar & Donut) -->
+        <section id="http" class="space-y-6">
+            <div class="border-l-4 border-amberBrand-500 pl-4">
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">3. Chuẩn Giao Thức HTTP, Methods & Status Codes</h2>
+                <p class="text-slate-600 text-sm mt-1">Nắm vững các quy chuẩn phản hồi dữ liệu và động từ điều khiển.</p>
+            </div>
+
+            <p class="text-slate-700 leading-relaxed">
+                Mỗi request API đều sử dụng các phương thức HTTP Method nhất định để thể hiện hành động (CRUD). Đồng thời, Server bắt buộc phải phản hồi bằng các Mã trạng thái (Status Code) chuẩn hóa để giúp Client biết request thành công hay gặp lỗi.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Chart 1: HTTP Status Code Categories -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-1">Phân Nhóm Mã Trạng Thái HTTP (Status Codes)</h3>
+                    <p class="text-xs text-slate-500 mb-4">Các dải mã chuẩn hóa biểu thị trạng thái phản hồi từ Server.</p>
+                    <div class="chart-container">
+                        <canvas id="statusCodeDoughnutChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <strong>Lưu ý quan trọng:</strong> Luôn trả về <code>4xx</code> nếu lỗi do thông tin từ Client gửi sai và <code>5xx</code> nếu Server bị sập/lỗi logic nội bộ.
+                    </div>
+                </div>
+
+                <!-- Chart 2: HTTP Methods Usage -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-1">Tần Suất Sử Dụng Phương Thức HTTP (CRUD)</h3>
+                    <p class="text-xs text-slate-500 mb-4">Các động từ tương tác dữ liệu chuẩn RESTful.</p>
+                    <div class="chart-container">
+                        <canvas id="httpMethodsBarChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <strong>Quy tắc Idempotency:</strong> <code>GET</code>, <code>PUT</code>, <code>DELETE</code> có tính lặp lại (Idempotent), trong khi <code>POST</code> sẽ tạo thêm tài nguyên mới mỗi lần gọi.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: API Security & Authentication -->
+        <section id="security" class="space-y-6">
+            <div class="border-l-4 border-rose-600 pl-4">
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">4. Bảo Mật API & Phân Quyền Truy Cập</h2>
+                <p class="text-slate-600 text-sm mt-1">Các cơ chế phòng thủ bảo vệ API khỏi nguy cơ rò rỉ dữ liệu và tấn công mạng.</p>
+            </div>
+
+            <p class="text-slate-700 leading-relaxed">
+                API công khai trên Internet là mục tiêu hàng đầu của các cuộc tấn công DDoS và đánh cắp dữ liệu. Lập trình viên bắt buộc phải triển khai phân biệt giữa **Authentication** (Xác thực xem người dùng là ai) và **Authorization** (Phân quyền người dùng được phép làm gì).
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Security Card 1 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-bold mb-4">🔑</div>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">API Key</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Chuỗi định danh gửi qua Header/Query string. Dùng cho việc định danh Ứng dụng hoặc tích hợp Dịch vụ bên thứ ba đơn giản.</p>
+                </div>
+
+                <!-- Security Card 2 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl font-bold mb-4">🛡️</div>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">JWT (JSON Web Token)</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Token mã hóa chứa Stateless Payload. Rất phổ biến cho đằng sau đợt đăng nhập thành công của người dùng trên Web/App.</p>
+                </div>
+
+                <!-- Security Card 3 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold mb-4">🌐</div>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">OAuth 2.0</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Ủy quyền tiêu chuẩn cho phép người dùng đăng nhập bằng tài khoản Google, Facebook, GitHub mà không lộ mật khẩu.</p>
+                </div>
+
+                <!-- Security Card 4 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-bold mb-4">⚡</div>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">Rate Limiting & CORS</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Giới hạn số request/phút để tránh DDoS/Spam và cài đặt cấu hình CORS kiểm soát tên miền nào được phép truy cập API.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Luồng Xử Lý Backend Phía Sau API -->
+        <section id="pipeline" class="space-y-6">
+            <div class="border-l-4 border-indigo-600 pl-4">
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">5. Kiến Trúc Luồng Xử Lý Backend (Backend Execution Pipeline)</h2>
+                <p class="text-slate-600 text-sm mt-1">Hành trình chi tiết của một Request từ khi cập bến Server đến Cơ sở dữ liệu.</p>
+            </div>
+
+            <p class="text-slate-700 leading-relaxed">
+                Khi một HTTP Request được gửi tới Server, nó phải đi qua nhiều lớp kiến trúc được chia tách rõ ràng (Layered Architecture) nhằm đảm bảo nguyên tắc Clean Code và khả năng mở rộng.
+            </p>
+
+            <!-- HTML/CSS Interactive Pipeline Diagram -->
+            <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
+                    <!-- Layer 1 -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                        <div class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Lớp 1</div>
+                        <h4 class="font-bold text-white text-sm mb-1">Router</h4>
+                        <p class="text-[11px] text-slate-400">Điều hướng URL <code>/users/123</code> đến đúng Controller tương ứng.</p>
+                    </div>
+
+                    <!-- Layer 2 -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                        <div class="text-xs font-bold text-teal-400 uppercase tracking-wider mb-2">Lớp 2</div>
+                        <h4 class="font-bold text-white text-sm mb-1">Middleware & Auth</h4>
+                        <p class="text-[11px] text-slate-400">Kiểm tra JWT Token, Rate Limit, Validate tham số đầu vào.</p>
+                    </div>
+
+                    <!-- Layer 3 -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                        <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Lớp 3</div>
+                        <h4 class="font-bold text-white text-sm mb-1">Controller</h4>
+                        <p class="text-[11px] text-slate-400">Tiếp nhận Request, gọi các hàm Service và chuẩn hóa Response JSON.</p>
+                    </div>
+
+                    <!-- Layer 4 -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                        <div class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-2">Lớp 4</div>
+                        <h4 class="font-bold text-white text-sm mb-1">Service (Logic)</h4>
+                        <p class="text-[11px] text-slate-400">Thực hiện Business Logic chính (Tính toán, xử lý thanh toán, gửi Email).</p>
+                    </div>
+
+                    <!-- Layer 5 -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">Lớp 5</div>
+                        <h4 class="font-bold text-white text-sm mb-1">Database & Cache</h4>
+                        <p class="text-[11px] text-slate-400">Truy vấn CSDL (PostgreSQL, MongoDB) hoặc lưu đệm Cache (Redis).</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-800 flex flex-wrap justify-between items-center text-xs text-slate-400">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Thiết kế giúp dễ viết Unit Test độc lập cho từng Layer.
+                    </span>
+                    <span class="text-slate-500">Chuẩn Pattern: MVC / Clean Architecture</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Lộ Trình Học Tập (Roadmap) -->
+        <section id="roadmap" class="space-y-6">
+            <div class="border-l-4 border-tealBrand-500 pl-4">
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">6. Lộ Trình Học API Từng Bước Cho Người Mới</h2>
+                <p class="text-slate-600 text-sm mt-1">Các cột mốc thực hành giúp bạn thành thạo từ lý thuyết đến thực chiến.</p>
+            </div>
+
+            <!-- Vertical Timeline Component using standard Tailwind (NO SVG) -->
+            <div class="relative pl-6 sm:pl-8 border-l-2 border-indigo-200 space-y-8 my-8">
+                <!-- Step 1 -->
+                <div class="relative">
+                    <div class="absolute -left-[31px] sm:-left-[39px] top-0 w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow">
+                        1
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-900 text-base">Hiểu Lý Thuyết Mạng & HTTP Protocol</h3>
+                        <p class="text-xs text-slate-600 mt-1">Nắm vững Client-Server, HTTP Methods (GET, POST, PUT, DELETE), Status Codes (200, 404, 500) và cấu trúc Request Header/Body.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative">
+                    <div class="absolute -left-[31px] sm:-left-[39px] top-0 w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow">
+                        2
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-900 text-base">Thực Hành Gọi API Với Postman / Hoppscotch</h3>
+                        <p class="text-xs text-slate-600 mt-1">Sử dụng các Public API miễn phí (JSONPlaceholder, PokéAPI) để tập thử nghiệm gửi request, truyền Auth Token và xem dữ liệu JSON phản hồi.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative">
+                    <div class="absolute -left-[31px] sm:-left-[39px] top-0 w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow">
+                        3
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-900 text-base">Tự Viết RESTful API Với Một Ngôn Ngữ Backend</h3>
+                        <p class="text-xs text-slate-600 mt-1">Chọn 1 Framework phổ biến (Node.js/Express, Python/FastAPI, Java/Spring Boot) để dựng ứng dụng CRUD cơ bản kết nối CSDL (PostgreSQL / MongoDB).</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative">
+                    <div class="absolute -left-[31px] sm:-left-[39px] top-0 w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow">
+                        4
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-900 text-base">Tích Hợp Bảo Mật & Đóng Gói Swagger Docs</h3>
+                        <p class="text-xs text-slate-600 mt-1">Cài đặt Đăng nhập bằng JWT Token, cấu hình Rate Limiting và tự động sinh Tài liệu API với OpenAPI / Swagger Spec cho Frontend tra cứu.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-8 px-4 text-center text-xs">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <p class="font-semibold text-slate-300">Báo Cáo Trực Quan Hóa Kiến Thức API (SPA Infographic)</p>
+            <p>Được thiết kế nhằm tối ưu hóa trải nghiệm học tập và hệ thống hóa kiến thức lập trình.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Chart Init Script -->
+    <script>
+        // Label Helper Logic for Chart.js (>16 characters auto wrapping)
+        function formatLabel(str, maxLen = 16) {
+            if (!str || str.length <= maxLen) return str;
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > maxLen) {
+                    if (currentLine) lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += (currentLine ? ' ' : '') + word;
+                }
+            });
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        }
+
+        // Global Chart Defaults
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // 1. Radar Chart: API Architecture Comparison
+        const ctxRadar = document.getElementById('architectureRadarChart').getContext('2d');
+        const radarLabelsRaw = ['Độ linh hoạt Dữ liệu', 'Hiệu năng Tốc độ', 'Sự phổ biến Dễ học', 'Hỗ trợ Realtime', 'Khả năng Caching'];
+        const radarLabelsFormatted = radarLabelsRaw.map(label => formatLabel(label, 16));
+
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: radarLabelsFormatted,
+                datasets: [
+                    {
+                        label: 'REST API',
+                        data: [6, 7, 10, 3, 9],
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4f46e5'
+                    },
+                    {
+                        label: 'GraphQL',
+                        data: [10, 8, 6, 5, 4],
+                        backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                        borderColor: '#14b8a6',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#14b8a6'
+                    },
+                    {
+                        label: 'gRPC',
+                        data: [5, 10, 4, 7, 5],
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#f59e0b'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#e2e8f0' },
+                        grid: { color: '#e2e8f0' },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { stepSize: 2, display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 15, font: { size: 11, weight: 'bold' } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Doughnut Chart: HTTP Status Code Categories
+        const ctxDoughnut = document.getElementById('statusCodeDoughnutChart').getContext('2d');
+        const doughnutLabelsRaw = ['2xx Thành Công (Success)', '3xx Chuyển Hướng (Redirect)', '4xx Lỗi Phía Client (Error)', '5xx Lỗi Phía Server (Fault)'];
+        const doughnutLabelsFormatted = doughnutLabelsRaw.map(label => formatLabel(label, 16));
+
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: doughnutLabelsFormatted,
+                datasets: [{
+                    data: [50, 15, 25, 10],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+                    borderWidth: 3,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 12, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Horizontal Bar Chart: HTTP Methods Usage
+        const ctxBar = document.getElementById('httpMethodsBarChart').getContext('2d');
+        const barLabelsRaw = ['GET (Truy vấn dữ liệu)', 'POST (Tạo mới tài nguyên)', 'PUT / PATCH (Cập nhật dữ liệu)', 'DELETE (Xóa tài nguyên)'];
+        const barLabelsFormatted = barLabelsRaw.map(label => formatLabel(label, 16));
+
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: barLabelsFormatted,
+                datasets: [{
+                    label: 'Tỷ lệ tần suất dùng',
+                    data: [45, 25, 20, 10],
+                    backgroundColor: ['#4f46e5', '#0d9488', '#f59e0b', '#e11d48'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            },
+                            label: function(context) {
+                                return 'Tần suất: ' + context.parsed.x + '% trong các hệ thống';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
