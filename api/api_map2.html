@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Tư Duy Khái Niệm & Kiến Trúc API Toàn Diện</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom canvas grid background */
+    .canvas-bg {
+      background-color: #0b0f19;
+      background-image: 
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.09) 1px, transparent 0);
+      background-size: 28px 28px;
+    }
+    
+    .node-transition {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .node-transition:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* Custom scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Pulse effect on search match */
+    @keyframes searchPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.8), 0 10px 25px -5px rgba(250, 204, 21, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(250, 204, 21, 1), 0 20px 30px -5px rgba(250, 204, 21, 0.6); }
+    }
+    .search-match {
+      animation: searchPulse 1.5s infinite;
+      border-color: #facc15 !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col select-none">
+
+  <!-- TOP HEADER & CONTROLS -->
+  <header class="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-4 z-20 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-diagram-project text-white text-lg"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-slate-100 flex items-center gap-2">
+          Sơ Đồ Tư Duy API Toàn Diện
+          <span class="text-xs bg-cyan-500/20 text-cyan-300 font-medium px-2 py-0.5 rounded-full border border-cyan-500/30">API Universe</span>
+        </h1>
+        <p class="text-xs text-slate-400 hidden sm:block">Toàn bộ khái niệm, kiến trúc, giao thức, bảo mật và vận hành xung quanh API</p>
+      </div>
+    </div>
+
+    <!-- Search & Control Buttons -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="relative w-40 sm:w-64">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input 
+          id="searchInput" 
+          type="text" 
+          placeholder="Tìm khái niệm API (VD: JWT, REST, gRPC)..." 
+          class="w-full bg-slate-800/90 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+        />
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Zoom and Fit Controls -->
+      <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5">
+        <button id="zoomInBtn" title="Phóng to" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 rounded transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+        </button>
+        <button id="zoomOutBtn" title="Thu nhỏ" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 rounded transition">
+          <i class="fa-solid fa-minus text-xs"></i>
+        </button>
+        <button id="fitViewBtn" title="Về trung tâm" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 rounded transition">
+          <i class="fa-solid fa-compress text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Expand/Collapse All Button -->
+      <button id="toggleExpandAllBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium rounded-lg transition flex items-center gap-1.5">
+        <i class="fa-solid fa-expand"></i>
+        <span class="hidden md:inline">Mở rộng tất cả</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CANVAS WORKSPACE -->
+  <main class="flex-1 relative overflow-hidden canvas-bg cursor-grab active:cursor-grabbing" id="viewport">
+    <!-- SVG Dynamic Connections Layer -->
+    <svg id="connectionsSvg" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+    
+    <!-- Transformed Mind Map Canvas -->
+    <div id="mindmapCanvas" class="absolute inset-0 transform-gpu origin-top-left z-10"></div>
+
+    <!-- Floating Legend & User Guide -->
+    <div class="absolute bottom-4 left-4 z-20 flex flex-col gap-2">
+      <div class="bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-xl p-3 text-xs shadow-xl max-w-xs hidden sm:block">
+        <div class="font-semibold text-slate-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-cyan-400"></i> Hướng dẫn tương tác
+        </div>
+        <ul class="text-slate-400 space-y-1.5">
+          <li>• <span class="text-slate-200 font-medium">Kéo chuột:</span> Di chuyển vùng nhìn (Pan).</li>
+          <li>• <span class="text-slate-200 font-medium">Cuộn chuột:</span> Phóng to / thu nhỏ (Zoom).</li>
+          <li>• <span class="text-slate-200 font-medium">Click vào card:</span> Xem giải thích chi tiết & ví dụ.</li>
+          <li>• <span class="text-slate-200 font-medium">Nút (+/-):</span> Đóng/mở các khái niệm con.</li>
+        </ul>
+      </div>
+      <div class="text-[11px] text-slate-400 px-2.5 py-1 bg-slate-900/80 rounded-md border border-slate-800 w-fit backdrop-blur">
+        Tỉ lệ zoom: <span id="zoomLevelDisplay" class="text-cyan-400 font-semibold">100%</span>
+      </div>
+    </div>
+
+    <!-- Category Jump Pills Filter -->
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex flex-wrap items-center justify-center gap-1.5 max-w-5xl px-2">
+      <button data-pillar="all" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-600 text-white border border-cyan-400 shadow-sm transition">
+        Tất cả chủ đề API
+      </button>
+      <button data-pillar="core" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-sky-300 border border-sky-500/30 transition">
+        Bản chất & Core
+      </button>
+      <button data-pillar="arch" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-purple-300 border border-purple-500/30 transition">
+        Kiến trúc API
+      </button>
+      <button data-pillar="http" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-indigo-300 border border-indigo-500/30 transition">
+        HTTP & Mạng
+      </button>
+      <button data-pillar="format" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition">
+        Định dạng Dữ liệu
+      </button>
+      <button data-pillar="security" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-rose-300 border border-rose-500/30 transition">
+        Bảo mật & Phân quyền
+      </button>
+      <button data-pillar="design" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-emerald-300 border border-emerald-500/30 transition">
+        Thiết kế & Lifecycle
+      </button>
+      <button data-pillar="infra" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-teal-300 border border-teal-500/30 transition">
+        Hạ tầng Backend
+      </button>
+    </div>
+  </main>
+
+  <!-- SLIDE-OVER DETAIL DRAWER PANEL -->
+  <aside id="detailDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[480px] bg-slate-900 border-l border-slate-800 shadow-2xl z-30 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+    <!-- Drawer Header -->
+    <div class="p-5 border-b border-slate-800 flex items-start justify-between bg-slate-900/90 backdrop-blur">
+      <div class="flex items-center gap-3">
+        <div id="drawerIcon" class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg border border-cyan-500/30 shrink-0">
+          <i class="fa-solid fa-plug"></i>
+        </div>
+        <div>
+          <span id="drawerPillarBadge" class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+            Chủ đề API
+          </span>
+          <h2 id="drawerTitle" class="text-base font-bold text-white mt-1 leading-snug">Tiêu đề khái niệm</h2>
+        </div>
+      </div>
+      <button id="closeDrawerBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Content Body -->
+    <div class="p-5 overflow-y-auto flex-1 space-y-5 text-sm">
+      <!-- Why it matters -->
+      <div class="bg-cyan-950/30 border border-cyan-800/40 rounded-xl p-4">
+        <div class="text-xs font-semibold text-cyan-300 flex items-center gap-1.5 mb-1.5">
+          <i class="fa-solid fa-bullseye"></i> Vai trò & Ý nghĩa cốt lõi
+        </div>
+        <p id="drawerWhy" class="text-slate-300 text-xs leading-relaxed"></p>
+      </div>
+
+      <!-- Core Mechanics Explanation -->
+      <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-book-open text-slate-400"></i> Bản chất & Nguyên lý hoạt động
+        </h3>
+        <div id="drawerDesc" class="text-slate-200 text-xs leading-relaxed space-y-2"></div>
+      </div>
+
+      <!-- Key Sub-concepts Checklist -->
+      <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-list-check text-slate-400"></i> Các khái niệm con trọng tâm
+        </h3>
+        <ul id="drawerKeyPoints" class="space-y-1.5 text-xs text-slate-300"></ul>
+      </div>
+
+      <!-- Real-World Application & Interview Scenarios -->
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
+        <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 mb-1.5">
+          <i class="fa-solid fa-laptop-code"></i> Ứng dụng thực tế & Khi đi phỏng vấn
+        </div>
+        <p id="drawerRealWorld" class="text-slate-300 text-xs leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- Drawer Footer: Mastery Learning Status -->
+    <div class="p-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between text-xs">
+      <span class="text-slate-400">Trạng thái nắm vững:</span>
+      <div class="flex items-center gap-2" id="masteryButtonGroup">
+        <button data-status="todo" class="px-2.5 py-1 rounded-md text-xs border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">Chưa học</button>
+        <button data-status="learning" class="px-2.5 py-1 rounded-md text-xs border border-amber-600/40 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40">Đang học</button>
+        <button data-status="mastered" class="px-2.5 py-1 rounded-md text-xs border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40">Đã vững</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- JAVASCRIPT MIND MAP ENGINE -->
+  <script>
+    /* --- MIND MAP DATA HIERARCHY FOR API UNIVERSE --- */
+    const MINDMAP_DATA = {
+      id: "root",
+      title: "API (Application Programming Interface)",
+      subtitle: "Giao Diện Lập Trình Ứng Dụng",
+      icon: "fa-solid fa-network-wired",
+      color: "cyan",
+      side: "center",
+      why: "Là cầu nối giao tiếp quy chuẩn giữa các thành phần phần mềm độc lập (Frontend, Backend, Mobile Apps, Microservices và Dịch vụ bên thứ 3).",
+      desc: "API cho phép các hệ thống chia sẻ chức năng và dữ liệu an toàn mà không cần biết chi tiết cài đặt mã nguồn bên trong của nhau. Nó là hạ tầng cốt lõi của Internet và phần mềm hiện đại.",
+      keyPoints: [
+        "Mô hình Request - Response & Client - Server",
+        "Kiểu Kiến Trúc API (REST, GraphQL, gRPC, WebSockets, EDA)",
+        "Giao thức HTTP/HTTPS, Methods & Status Codes",
+        "Định dạng dữ liệu & Serialization (JSON, Protobuf, XML)",
+        "Bảo mật & Phân quyền (API Key, JWT, OAuth 2.0, Rate Limit)",
+        "Quy trình Thiết kế & Documentation (OpenAPI / Swagger)",
+        "Hạ tầng Backend & Operations (API Gateway, Caching, Tracing)"
+      ],
+      realWorld: "Được dùng trong mọi ứng dụng: Đăng nhập bằng Google, thanh toán cổng MoMo/Stripe, gọi ứng dụng Grab/Uber lấy tọa độ bản đồ, hoặc kết nối giữa React Frontend và Node.js Backend.",
+      children: [
+        /* LEFT SIDE BRANCHES */
+        {
+          id: "core",
+          title: "1. Bản Chất & Khái Niệm Core",
+          subtitle: "API Fundamentals",
+          icon: "fa-solid fa-cube",
+          color: "sky",
+          side: "left",
+          why: "Thấu hiểu nền tảng giao tiếp Client - Server và chu kỳ sống của một lượt trao đổi thông điệp.",
+          desc: "Mọi giao tiếp API đều xoay quanh việc một Client khởi tạo Yêu cầu (Request) mang thông tin mong muốn, và Server xử lý rồi trả về Phản hồi (Response).",
+          keyPoints: [
+            "Client - Server Model: Phân tách trách nhiệm giao diện và xử lý dữ liệu",
+            "Request Anatomy: Endpoint URL, Method, Headers, Query Params, Body Payload",
+            "Response Anatomy: Status Code, Response Headers, Response Body",
+            "Statelessness: Server không lưu trạng thái phiên gọi giữa các request",
+            "Idempotency: Tính chất gọi 1 lần hay $N$ lần cho cùng kết quả (GET vs POST)"
+          ],
+          realWorld: "Trình duyệt gửi `GET /api/v1/products?category=laptop` mang Header `Authorization: Bearer <token>` và nhận về JSON chứa danh sách sản phẩm.",
+          children: [
+            {
+              id: "core_req_res",
+              title: "Request & Response Anatomy",
+              subtitle: "Structure of API Message",
+              icon: "fa-solid fa-arrows-left-right",
+              color: "sky",
+              side: "left",
+              why: "Giúp lập trình viên bóc tách và tạo đúng cấu trúc gói tin khi gọi hoặc viết API.",
+              desc: "Gói tin API bao gồm phần Header (chứa metadata như Auth token, Content-Type) và phần Body (chứa dữ liệu thực tế dạng JSON/XML).",
+              keyPoints: [
+                "Endpoint URL: Địa chỉ định danh tài nguyên (VD: `https://api.domain.com/v1/users`)",
+                "Headers: `Content-Type`, `Authorization`, `User-Agent`, `Accept`",
+                "Query Parameters: Dùng để lọc/phân trang (VD: `?page=1&limit=20`)",
+                "Path Parameters: Định danh tài nguyên cụ thể (VD: `/users/:id`)",
+                "Body Payload: Khối dữ liệu gửi kèm trong các request POST, PUT, PATCH"
+              ],
+              realWorld: "Gửi thông tin đăng ký người dùng mới trong Body POST dạng JSON `{ 'name': 'An', 'email': 'an@gmail.com' }`."
+            },
+            {
+              id: "core_properties",
+              title: "Statelessness & Idempotency",
+              subtitle: "Core API Behavior Properties",
+              icon: "fa-solid fa-[#0ea5e9] fa-infinity",
+              color: "sky",
+              side: "left",
+              why: "Quyết định khả năng mở rộng ngang (Horizontal Scaling) và tính an toàn khi truyền lại gói tin lỗi.",
+              desc: "Stateless giúp server dễ dàng scale vì không giữ session local. Idempotency bảo đảm nếu mạng bị chập chờn, client gọi lại request không gây ra tác dụng phụ ngoài ý muốn.",
+              keyPoints: [
+                "Stateless: Client tự mang đủ thông tin xác thực trong mỗi request",
+                "Idempotent Methods: `GET`, `PUT`, `DELETE`, `HEAD`, `OPTIONS` (gọi $N$ lần kết quả như nhau)",
+                "Non-Idempotent Methods: `POST` (gọi $N$ lần sẽ tạo $N$ bản ghi mới)",
+                "Safe Methods: Các phương thức chỉ đọc dữ liệu không làm thay đổi trạng thái server (`GET`)"
+              ],
+              realWorld: "Nếu mạng bị ngắt khi gửi `PUT /users/10/address`, bấm gửi lại 5 lần cũng chỉ cập nhật đúng địa chỉ đó 1 lần."
+            }
+          ]
+        },
+        {
+          id: "http",
+          title: "2. HTTP Protocol & Mạng Máy Tính",
+          subtitle: "HTTP Verbs & Status Codes",
+          icon: "fa-solid fa-globe",
+          color: "indigo",
+          side: "left",
+          why: "HTTP là ngôn ngữ truyền tải dữ liệu phổ biến nhất trên Internet phục vụ cho Web API.",
+          desc: "Nắm vững quy chuẩn động từ (Methods), dải mã trạng thái (Status Codes) và các thế hệ giao thức HTTP để giao tiếp đúng chuẩn mực.",
+          keyPoints: [
+            "HTTP Methods (CRUD): GET (Read), POST (Create), PUT/PATCH (Update), DELETE (Remove)",
+            "Status Codes: 2xx (Success), 3xx (Redirection), 4xx (Client Error), 5xx (Server Error)",
+            "HTTP Evolution: HTTP/1.1 (Text) -> HTTP/2 (Binary Multiplexing) -> HTTP/3 (QUIC/UDP)",
+            "HTTPS & TLS Handshake: Mã hóa đường truyền chống tấn công nghe lén (MITM)"
+          ],
+          realWorld: "Trả về mã `201 Created` khi tạo mới tài khoản thành công; trả về `401 Unauthorized` nếu chưa đăng nhập; trả về `403 Forbidden` nếu không đủ quyền.",
+          children: [
+            {
+              id: "http_methods",
+              title: "HTTP Verbs & Status Codes",
+              subtitle: "CRUD Standard Mapping",
+              icon: "fa-solid fa-list-check",
+              color: "indigo",
+              side: "left",
+              why: "Giao tiếp đồng điệu giữa Frontend và Backend không cần giải thích lại.",
+              desc: "Chuẩn hóa động từ thao tác với dữ liệu và mã trạng thái giúp phản ánh chính xác kết quả xử lý của server.",
+              keyPoints: [
+                "`GET`: Truy vấn dữ liệu | `POST`: Tạo tài nguyên mới",
+                "`PUT`: Thay thế toàn bộ tài nguyên | `PATCH`: Cập nhật một vài trường",
+                "`200 OK`, `201 Created`, `204 No Content`",
+                "`400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `429 Too Many Requests`",
+                "`500 Internal Server Error`, `502 Bad Gateway`, `503 Service Unavailable`"
+              ],
+              realWorld: "Frontend căn cứ vào mã `401` để tự động điều hướng người dùng về màn hình Đăng nhập."
+            },
+            {
+              id: "http_proto",
+              title: "HTTP/1.1 vs HTTP/2 vs HTTP/3",
+              subtitle: "Protocol Performance Evolution",
+              icon: "fa-solid fa-bolt",
+              color: "indigo",
+              side: "left",
+              why: "Tối ưu tốc độ tải và giảm độ trễ khi gọi hàng trăm API đồng thời.",
+              desc: "HTTP/2 giới thiệu cơ chế Multiplexing trên 1 kết nối TCP duy nhất. HTTP/3 chuyển sang dùng giao thức UDP với QUIC giúp gạt bỏ hiện tượng Head-of-line blocking.",
+              keyPoints: [
+                "HTTP/1.1: Bị giới hạn Head-of-line blocking, gửi nhận dạng văn bản (Text)",
+                "HTTP/2: Multiplexing truyền nhiều request cùng lúc, HPACK nén Header, Binary Frame",
+                "HTTP/3: Chạy trên UDP với QUIC protocol, kết nối siêu tốc không bị trễ nghẽn TCP",
+                "TLS 1.3: Rút ngắn quá trình bắt tay SSL/TLS Handshake xuống còn 1 RTT"
+              ],
+              realWorld: "gRPC bắt buộc chạy trên HTTP/2 để tận dụng khả năng streaming dữ liệu 2 chiều siêu tốc."
+            }
+          ]
+        },
+        {
+          id: "format",
+          title: "3. Định Dạng Dữ Liệu & Serialization",
+          subtitle: "Data Payloads & Serialization",
+          icon: "fa-solid fa-file-code",
+          color: "amber",
+          side: "left",
+          why: "Đóng gói dữ liệu thành định dạng mà cả 2 hệ thống khác ngôn ngữ lập trình đều hiểu được.",
+          desc: "Cần chọn đúng định dạng dữ liệu cân bằng giữa tính dễ đọc của con người (Human-readable) và tốc độ đóng gói nhị phân (Binary performance).",
+          keyPoints: [
+            "JSON (JavaScript Object Notation): Chuẩn quốc dân nhẹ, dễ đọc (`application/json`)",
+            "Protocol Buffers (Protobuf): Định dạng nhị phân siêu nhỏ nhẹ dùng cho gRPC",
+            "Multipart / Form-Data: Dùng chuyên dụng cho việc Upload hình ảnh, video, tài liệu",
+            "XML & YAML: Dùng trong các hệ thống doanh nghiệp cổ điển (SOAP) hoặc file cấu hình"
+          ],
+          realWorld: "Dùng JSON cho ứng dụng Web/Mobile thông thường; chuyển sang Protobuf cho các Microservices trao đổi dữ liệu tần suất lớn để giảm 70% dung lượng băng thông.",
+          children: [
+            {
+              id: "format_json_proto",
+              title: "JSON vs Protobuf",
+              subtitle: "Text vs Binary Serialization",
+              icon: "fa-solid fa-file-zipper",
+              color: "amber",
+              side: "left",
+              why: "Tối ưu hóa dung lượng truyền qua đường truyền mạng.",
+              desc: "JSON lưu trữ dưới dạng chuỗi Text tốn dung lượng hơn nhưng dễ đọc. Protobuf mã hóa dữ liệu thành các byte nhị phân siêu nhỏ kèm theo Strongly-typed Schema.",
+              keyPoints: [
+                "JSON: Schema-less, Human-readable, hỗ trợ mặc định mọi ngôn ngữ",
+                "Protobuf: Yêu cầu file `.proto` định nghĩa Schema trước, Binary compact",
+                "Serialization & Deserialization: Quá trình chuyển đổi Object thành byte/text và ngược lại",
+                "Multipart Form-Data: Định dạng chia nhỏ file thành các phần (boundary) để upload"
+              ],
+              realWorld: "Upload file ảnh đại diện bằng `multipart/form-data`; gửi thông tin form bằng `application/json`."
+            }
+          ]
+        },
+
+        /* RIGHT SIDE BRANCHES */
+        {
+          id: "arch",
+          title: "4. Các Kiểu Kiến Trúc API",
+          subtitle: "Architectural Styles",
+          icon: "fa-solid fa-sitemap",
+          color: "purple",
+          side: "right",
+          why: "Lựa chọn mô hình thiết kế phù hợp với đặc thù bài toán (CRUD, Real-time, hay Microservices).",
+          desc: "Mỗi kiến trúc giải quyết một nỗi đau cụ thể: REST đơn giản chuẩn hóa, GraphQL linh hoạt dữ liệu, gRPC siêu tốc độ, WebSockets liên lạc 2 chiều.",
+          keyPoints: [
+            "REST (Representational State Transfer): Resource-based, chuẩn phổ biến 80% Web",
+            "GraphQL: Query-based, Client tự chọn trường dữ liệu, khắc phục Over/Under-fetching",
+            "gRPC: Action/RPC-based, HTTP/2 + Protobuf, chuyên dụng cho Microservices",
+            "Event-Driven API & Webhooks: Bất đồng bộ, đẩy dữ liệu tự động khi có sự kiện",
+            "WebSockets & SSE: Duy trì kết nối liên tục (Full-duplex real-time)",
+            "SOAP: Giao thức nghiêm ngặt dựa trên XML, chuẩn bảo mật WS-Security cho Ngân hàng"
+          ],
+          realWorld: "Web e-commerce dùng REST/GraphQL cho khách mua hàng; hệ thống phân tích backend dùng gRPC; ứng dụng chat dùng WebSockets; thanh toán dùng Webhooks.",
+          children: [
+            {
+              id: "arch_rest_graphql",
+              title: "REST vs GraphQL",
+              subtitle: "Resource vs Query Driven",
+              icon: "fa-solid fa-diagram-nested",
+              color: "purple",
+              side: "right",
+              why: "Tránh lãng phí băng thông di động và giảm số lượt gọi API trùng lặp.",
+              desc: "REST chia thành nhiều URL tài nguyên. GraphQL gom về 1 Endpoint duy nhất và cho phép client gửi câu truy vấn Schema chỉ lấy các trường cần thiết.",
+              keyPoints: [
+                "REST Over-fetching: Trả về thừa dữ liệu client không dùng tới",
+                "REST Under-fetching: Phải gọi $N$ request liên tiếp để gom đủ dữ liệu (N+1 Problem)",
+                "GraphQL Query & Mutation & Subscription: Lấy dữ liệu, sửa dữ liệu, lắng nghe real-time",
+                "GraphQL Single Endpoint (`POST /graphql`): Cần cơ chế DataLoader chống N+1 DB Query"
+              ],
+              realWorld: "App Facebook dùng GraphQL để màn hình Newsfeed chỉ lấy đúng tên, avatar và lượt like thay vì tải toàn bộ object User cồng kềnh."
+            },
+            {
+              id: "arch_grpc_event",
+              title: "gRPC, WebSockets & Webhooks",
+              subtitle: "High-Speed & Event Architectures",
+              icon: "fa-solid fa-[#a855f7] fa-satellite-dish",
+              color: "purple",
+              side: "right",
+              why: "Xử lý bài toán tốc độ cao, độ trễ thấp và giao tiếp sự kiện bất đồng bộ.",
+              desc: "WebSockets giữ kết nối TCP mở liên tục 2 chiều. Webhooks đóng vai trò 'Reverse API' – Server chủ động bắn HTTP Request sang Client khi có event mới.",
+              keyPoints: [
+                "gRPC Contract-First: Định nghĩa Service bằng Protocol Buffers, sinh code tự động",
+                "WebSockets Full-Duplex: Server và Client tự do gửi tin cho nhau bất kỳ lúc nào",
+                "Webhooks Callback: Client đăng ký URL, Server bắn HTTP POST khi hoàn thành tác vụ",
+                "Server-Sent Events (SSE): Kết nối 1 chiều từ Server đẩy tin về Client (dùng cho AI Chat Streaming)"
+              ],
+              realWorld: "ChatGPT dùng SSE để stream từng từ phản hồi về trình duyệt; Cổng MoMo dùng Webhook thông báo kết quả chuyển tiền về Web cửa hàng."
+            }
+          ]
+        },
+        {
+          id: "security",
+          title: "5. Bảo Mật & Phân Quyền API",
+          subtitle: "API Security & Access Control",
+          icon: "fa-solid fa-shield-halved",
+          color: "rose",
+          side: "right",
+          why: "Bảo vệ tài nguyên hệ thống khỏi tin tặc, rò rỉ dữ liệu và tấn công từ chối dịch vụ (DDoS).",
+          desc: "Tích hợp tư duy Zero Trust: Luôn xác thực (Authentication), phân quyền (Authorization) và kiểm soát lưu lượng gọi API.",
+          keyPoints: [
+            "Authentication (AuthN): API Key, Basic Auth, JWT (JSON Web Token), OAuth 2.0 / OIDC",
+            "Authorization (AuthZ): RBAC (Role-Based), ABAC (Attribute-Based), Scopes",
+            "CORS (Cross-Origin Resource Sharing): Kiểm soát tên miền trình duyệt được phép gọi API",
+            "Rate Limiting & Throttling: Chặn Spam/DDoS bằng Leaky Bucket / Token Bucket Algorithm",
+            "Lỗ hổng OWASP API Top 10: BOLA (Broken Object Level Auth), Injection, Mass Assignment"
+          ],
+          realWorld: "Áp dụng Rate Limit 100 req/phút per IP; sử dụng JWT có Expiration Time kèm Refresh Token gửi qua HttpOnly Cookie để chống XSS."
+          ,children: [
+            {
+              id: "sec_auth",
+              title: "JWT & OAuth 2.0 Standard",
+              subtitle: "Stateless Tokens & Authorization Framework",
+              icon: "fa-solid fa-key",
+              color: "rose",
+              side: "right",
+              why: "Chuẩn hóa cơ chế đăng nhập và ủy quyền giữa nhiều hệ thống độc lập.",
+              desc: "JWT mang chữ ký số (Signature) tự xác thực mà không cần query Database. OAuth 2.0 cho phép người dùng ủy quyền ứng dụng bên thứ 3 mà không lộ mật khẩu.",
+              keyPoints: [
+                "Cấu trúc JWT: `Header.Payload.Signature` (Mã hóa Base64URL)",
+                "Access Token (Sống ngắn, 15 phút) vs Refresh Token (Sống dài, 7 ngày)",
+                "OAuth 2.0 Roles: Resource Owner, Client, Authorization Server, Resource Server",
+                "OAuth 2.0 Grant Types: Authorization Code Flow (với PKCE cho Mobile/SPA)"
+              ],
+              realWorld: "Nút 'Đăng nhập bằng Google' trên các website sử dụng OAuth 2.0 & OpenID Connect."
+            },
+            {
+              id: "sec_owasp",
+              title: "CORS & OWASP API Security",
+              subtitle: "Cross-Origin & Vulnerabilities",
+              icon: "fa-solid fa-user-shield",
+              color: "rose",
+              side: "right",
+              why: "Ngăn chặn các kỹ thuật tấn công phổ biến nhắm vào điểm yếu API.",
+              desc: "CORS là cơ chế bảo vệ phía Trình duyệt. BOLA (BFLA) là lỗi bảo mật nghiêm trọng số 1 khi lập trình viên quên kiểm tra quyền sở hữu ID tài nguyên.",
+              keyPoints: [
+                "CORS Preflight Request: Trình duyệt gửi `OPTIONS` hỏi server trước khi gửi request thật",
+                "BOLA / IDOR: Người dùng A đổi ID trên URL để xem/sửa đơn hàng của người dùng B",
+                "Rate Limiting với Redis: Đếm số request per IP/Token trong cửa sổ thời gian",
+                "Input Validation & Sanitization: Ngăn chặn SQL Injection và Command Injection"
+              ],
+              realWorld: "Luôn kiểm tra `WHERE id = :id AND user_id = :current_user_id` trong SQL để triệt tiêu lỗi BOLA."
+            }
+          ]
+        },
+        {
+          id: "design",
+          title: "6. Thiết Kế & Quản Lý Vòng Đời",
+          subtitle: "API Design & Lifecycle",
+          icon: "fa-solid fa-pen-ruler",
+          color: "emerald",
+          side: "right",
+          why: "Nâng cao trải nghiệm nhà phát triển (Developer Experience - DX) và tính ổn định khi nâng cấp.",
+          desc: "Chuẩn hóa quy trình từ khâu thiết kế Specification trước khi code, đánh phiên bản linh hoạt, đến chuẩn hóa thông báo lỗi.",
+          keyPoints: [
+            "API-First / Design-First: Thiết kế tài liệu Spec trước khi triển khai gõ code Backend",
+            "OpenAPI Spec / Swagger: Chuẩn quốc tế định nghĩa API, tự động sinh Docs & SDK",
+            "Versioning Strategies: Đánh phiên bản qua URI (`/v1/`), Query (`?version=1`), hoặc Header",
+            "Pagination Patterns: Phân trang bằng Offset/Limit đơn giản vs Cursor-based tối ưu DB lớn",
+            "Standardized Error Format (RFC 7807): Cấu trúc JSON thông báo lỗi chuẩn mực"
+          ],
+          realWorld: "Frontend và Backend cùng thống nhất file `openapi.yaml`. Frontend dùng Swagger Mock Server làm việc trước trong khi Backend triển khai code.",
+          children: [
+            {
+              id: "design_spec",
+              title: "OpenAPI & Versioning & Pagination",
+              subtitle: "Standardization Best Practices",
+              icon: "fa-solid fa-file-signature",
+              color: "emerald",
+              side: "right",
+              why: "Giúp API dễ tích hợp, duy trì tính tương thích ngược (Backward Compatibility).",
+              desc: "Tài liệu API rõ ràng giúp giảm 80% thời gian trao đổi giữa các team. Cursor Pagination bảo đảm không bị trùng lặp bản ghi khi danh sách dữ liệu thêm mới liên tục.",
+              keyPoints: [
+                "OpenAPI 3.0: Định nghĩa Endpoints, Parameters, RequestBody, Responses, Schemas",
+                "URI Versioning: `https://api.domain.com/v1/users` (Rõ ràng, phổ biến nhất)",
+                "Offset Pagination: `LIMIT 20 OFFSET 100` (Dễ viết nhưng chậm khi offset lớn)",
+                "Cursor Pagination: `WHERE id > :last_seen_id LIMIT 20` (Siêu tốc cho Infinite Scroll)",
+                "RFC 7807 Problem Details: JSON error chứa `type`, `title`, `status`, `detail`, `instance`"
+              ],
+              realWorld: "Bảng tin Facebook / TikTok dùng Cursor Pagination dựa trên `created_at` timestamp để vuốt lướt không bị lặp bài viết."
+            }
+          ]
+        },
+        {
+          id: "infra",
+          title: "7. Hạ Tầng Backend & Operations",
+          subtitle: "API Infrastructure & Observability",
+          icon: "fa-solid fa-server",
+          color: "teal",
+          side: "right",
+          why: "Đảm bảo API chịu tải hàng triệu người dùng, phản hồi dưới 50ms và dễ dàng gỡ lỗi.",
+          desc: "Xây dựng hạ tầng cổng tập trung (API Gateway), bộ đệm (Caching Layer) và hệ thống giám sát phân tán (Distributed Tracing).",
+          keyPoints: [
+            "API Gateway (Kong, Nginx, AWS Gateway): Routing, SSL Termination, Load Balancing",
+            "Caching Strategies: In-memory Cache (Redis), HTTP Cache-Control, ETag, CDN Caching",
+            "Observability & Tracing: Jaeger, Prometheus, Grafana, OpenTelemetry (Log, Metric, Trace)",
+            "API Testing: Unit Test, Integration Test, Contract Testing (Pact), Mocking Tools"
+          ],
+          realWorld: "API Gateway đóng vai trò làm bảo vệ đứng trước 50 Microservices: Vừa kiểm tra JWT Token, vừa giới hạn Rate Limit, vừa định tuyến URL đến đúng Service bên trong.",
+          children: [
+            {
+              id: "infra_gateway_cache",
+              title: "API Gateway & Redis Caching",
+              subtitle: "Performance & Architecture Infrastructure",
+              icon: "fa-solid fa-hard-drive",
+              color: "teal",
+              side: "right",
+              why: "Giảm tải 90% áp lực truy vấn trực tiếp vào Cơ sở dữ liệu chính.",
+              desc: "API Gateway tập trung các tác vụ dùng chung. Cache-Aside Pattern với Redis giúp phản hồi dữ liệu tĩnh trong vài miligiây.",
+              keyPoints: [
+                "API Gateway Pattern: Tránh việc Client phải gọi trực tiếp từng Microservice",
+                "Cache-Aside Pattern: App kiểm tra Redis trước -> Cache Hit trả về ngay -> Cache Miss mới gọi DB",
+                "ETag Header: Cho phép trình duyệt tận dụng đệm `304 Not Modified`",
+                "Distributed Tracing: Gắn `Trace-ID` vào Header để theo dõi 1 request đi qua 10 microservices"
+              ],
+              realWorld: "Trang chủ Tiki/Shopee lưu danh mục danh mục sản phẩm vào Redis Cache, giảm thời gian tải trang từ 500ms xuống 15ms."
+            }
+          ]
+        }
+      ]
+    };
+
+    /* --- CANVAS ENGINE STATE MANAGEMENT --- */
+    const state = {
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      collapsedNodes: new Set(),
+      filterPillar: 'all',
+      searchQuery: '',
+      activeNodeId: null,
+      mastery: {}
+    };
+
+    // DOM Element References
+    const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('mindmapCanvas');
+    const svg = document.getElementById('connectionsSvg');
+    const zoomDisplay = document.getElementById('zoomLevelDisplay');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const detailDrawer = document.getElementById('detailDrawer');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+
+    /* --- COLOR THEME DICTIONARY --- */
+    const colorThemes = {
+      cyan: {
+        bg: "bg-cyan-950/80 border-cyan-500/50 hover:border-cyan-400 text-cyan-100",
+        badge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+        line: "#06b6d4",
+        glow: "shadow-cyan-500/20"
+      },
+      sky: {
+        bg: "bg-sky-950/80 border-sky-500/50 hover:border-sky-400 text-sky-100",
+        badge: "bg-sky-500/20 text-sky-300 border-sky-500/40",
+        line: "#0ea5e9",
+        glow: "shadow-sky-500/20"
+      },
+      indigo: {
+        bg: "bg-indigo-950/80 border-indigo-500/50 hover:border-indigo-400 text-indigo-100",
+        badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40",
+        line: "#6366f1",
+        glow: "shadow-indigo-500/20"
+      },
+      amber: {
+        bg: "bg-amber-950/80 border-amber-500/50 hover:border-amber-400 text-amber-100",
+        badge: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+        line: "#f59e0b",
+        glow: "shadow-amber-500/20"
+      },
+      purple: {
+        bg: "bg-purple-950/80 border-purple-500/50 hover:border-purple-400 text-purple-100",
+        badge: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+        line: "#a855f7",
+        glow: "shadow-purple-500/20"
+      },
+      rose: {
+        bg: "bg-rose-950/80 border-rose-500/50 hover:border-rose-400 text-rose-100",
+        badge: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+        line: "#f43f5e",
+        glow: "shadow-rose-500/20"
+      },
+      emerald: {
+        bg: "bg-emerald-950/80 border-emerald-500/50 hover:border-emerald-400 text-emerald-100",
+        badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+        line: "#10b981",
+        glow: "shadow-emerald-500/20"
+      },
+      teal: {
+        bg: "bg-teal-950/80 border-teal-500/50 hover:border-teal-400 text-teal-100",
+        badge: "bg-teal-500/20 text-teal-300 border-teal-500/40",
+        line: "#14b8a6",
+        glow: "shadow-teal-500/20"
+      }
+    };
+
+    /* --- RADIAL & SIDE LAYOUT ALGORITHM --- */
+    function calculateLayout() {
+      const positions = new Map();
+      const connections = [];
+
+      const rootX = 0;
+      const rootY = 0;
+      positions.set("root", { x: rootX, y: rootY, side: "center", data: MINDMAP_DATA });
+
+      const leftBranches = MINDMAP_DATA.children.filter(c => c.side === "left");
+      const rightBranches = MINDMAP_DATA.children.filter(c => c.side === "right");
+
+      const verticalGapBranch = 210;
+      const horizontalBranchOffset = 390;
+      const horizontalChildOffset = 360;
+
+      function layoutSide(branches, isRight) {
+        const dir = isRight ? 1 : -1;
+        const totalHeight = (branches.length - 1) * verticalGapBranch;
+        let startY = -totalHeight / 2;
+
+        branches.forEach((branch, idx) => {
+          if (state.filterPillar !== 'all' && state.filterPillar !== branch.id) {
+            return;
+          }
+
+          const branchX = rootX + dir * horizontalBranchOffset;
+          const branchY = startY + idx * verticalGapBranch;
+          positions.set(branch.id, { x: branchX, y: branchY, side: isRight ? "right" : "left", data: branch });
+
+          connections.push({
+            from: "root",
+            to: branch.id,
+            color: colorThemes[branch.color]?.line || "#06b6d4",
+            fromX: rootX,
+            fromY: rootY,
+            toX: branchX,
+            toY: branchY,
+            isRight: isRight
+          });
+
+          if (!state.collapsedNodes.has(branch.id) && branch.children && branch.children.length > 0) {
+            const childVerticalGap = 115;
+            const childrenTotalH = (branch.children.length - 1) * childVerticalGap;
+            let childStartY = branchY - childrenTotalH / 2;
+
+            branch.children.forEach((child, cIdx) => {
+              const childX = branchX + dir * horizontalChildOffset;
+              const childY = childStartY + cIdx * childVerticalGap;
+              positions.set(child.id, { x: childX, y: childY, side: isRight ? "right" : "left", data: child });
+
+              connections.push({
+                from: branch.id,
+                to: child.id,
+                color: colorThemes[branch.color]?.line || "#06b6d4",
+                fromX: branchX,
+                fromY: branchY,
+                toX: childX,
+                toY: childY,
+                isRight: isRight
+              });
+            });
+          }
+        });
+      }
+
+      layoutSide(leftBranches, false);
+      layoutSide(rightBranches, true);
+
+      return { positions, connections };
+    }
+
+    /* --- MIND MAP CANVAS RENDERER --- */
+    function renderMindmap() {
+      const { positions, connections } = calculateLayout();
+      canvas.innerHTML = '';
+      svg.innerHTML = '';
+
+      canvas.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+
+      // Render Bezier curves for connections
+      connections.forEach(conn => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        
+        const sx = conn.fromX * state.zoom + state.panX;
+        const sy = conn.fromY * state.zoom + state.panY;
+        const ex = conn.toX * state.zoom + state.panX;
+        const ey = conn.toY * state.zoom + state.panY;
+
+        const dx = (ex - sx) * 0.55;
+        const c1x = sx + dx;
+        const c1y = sy;
+        const c2x = ex - dx;
+        const c2y = ey;
+
+        path.setAttribute("d", `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${ex} ${ey}`);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", conn.color);
+        path.setAttribute("stroke-width", Math.max(2.0 * state.zoom, 1.2));
+        path.setAttribute("stroke-opacity", "0.7");
+        path.setAttribute("stroke-linecap", "round");
+        svg.appendChild(path);
+      });
+
+      // Render Node Cards
+      positions.forEach((node, id) => {
+        const data = node.data;
+        const isRoot = id === "root";
+        const hasChildren = data.children && data.children.length > 0;
+        const isCollapsed = state.collapsedNodes.has(id);
+        const theme = colorThemes[data.color] || colorThemes.cyan;
+        const isMastered = state.mastery[id] === 'mastered';
+        const isLearning = state.mastery[id] === 'learning';
+
+        let isMatch = false;
+        if (state.searchQuery.trim() !== '') {
+          const q = state.searchQuery.toLowerCase();
+          const matchTitle = data.title.toLowerCase().includes(q);
+          const matchSub = data.subtitle?.toLowerCase().includes(q);
+          const matchDesc = data.desc?.toLowerCase().includes(q);
+          const matchKeys = data.keyPoints?.some(k => k.toLowerCase().includes(q));
+          isMatch = matchTitle || matchSub || matchDesc || matchKeys;
+        }
+
+        const el = document.createElement('div');
+        el.className = `absolute node-transition cursor-pointer rounded-2xl border backdrop-blur-md p-3.5 shadow-xl ${theme.bg} ${theme.glow} ${isMatch ? 'search-match' : ''}`;
+        el.style.left = `${node.x}px`;
+        el.style.top = `${node.y}px`;
+        el.style.transform = `translate(-50%, -50%)`;
+        el.style.width = isRoot ? '330px' : (hasChildren ? '295px' : '270px');
+        el.dataset.nodeId = id;
+
+        let statusBadge = '';
+        if (isMastered) {
+          statusBadge = `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] px-1.5 py-0.5 rounded-md font-medium"><i class="fa-solid fa-check mr-1"></i>Đã vững</span>`;
+        } else if (isLearning) {
+          statusBadge = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] px-1.5 py-0.5 rounded-md font-medium"><i class="fa-solid fa-clock mr-1"></i>Đang học</span>`;
+        }
+
+        let toggleBtn = '';
+        if (hasChildren && !isRoot) {
+          toggleBtn = `
+            <button class="toggle-children-btn w-6 h-6 rounded-full bg-slate-800/90 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center text-xs transition ml-1" data-node-id="${id}" title="${isCollapsed ? 'Mở rộng nhánh' : 'Thu gọn nhánh'}">
+              <i class="fa-solid ${isCollapsed ? 'fa-plus' : 'fa-minus'}"></i>
+            </button>
+          `;
+        }
+
+        el.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm shadow-md border ${theme.badge}">
+              <i class="${data.icon}"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="text-[10px] font-semibold tracking-wider uppercase opacity-75 truncate">${data.subtitle || ''}</span>
+                <div class="flex items-center gap-1">
+                  ${statusBadge}
+                  ${toggleBtn}
+                </div>
+              </div>
+              <h3 class="text-xs font-bold leading-tight truncate text-white">${data.title}</h3>
+            </div>
+          </div>
+          ${!isRoot ? `
+            <div class="mt-2 pt-2 border-t border-slate-700/40 flex items-center justify-between text-[11px] text-slate-300">
+              <span class="opacity-80 truncate max-w-[200px]">${data.keyPoints ? data.keyPoints[0].split(':')[0] : 'Nhấn để xem chi tiết'}</span>
+              <span class="text-cyan-400 font-semibold shrink-0 hover:underline flex items-center gap-1">
+                Chi tiết <i class="fa-solid fa-chevron-right text-[9px]"></i>
+              </span>
+            </div>
+          ` : `
+            <p class="mt-2 text-[11px] text-slate-300 leading-relaxed border-t border-slate-700/40 pt-2 line-clamp-2">${data.why}</p>
+          `}
+        `;
+
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.toggle-children-btn')) {
+            return;
+          }
+          openDetailDrawer(data);
+        });
+
+        const toggleEl = el.querySelector('.toggle-children-btn');
+        if (toggleEl) {
+          toggleEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.collapsedNodes.has(id)) {
+              state.collapsedNodes.delete(id);
+            } else {
+              state.collapsedNodes.add(id);
+            }
+            renderMindmap();
+          });
+        }
+
+        canvas.appendChild(el);
+      });
+    }
+
+    /* --- DETAIL DRAWER HANDLERS --- */
+    function openDetailDrawer(data) {
+      state.activeNodeId = data.id;
+
+      document.getElementById('drawerTitle').textContent = data.title;
+      document.getElementById('drawerPillarBadge').textContent = data.subtitle || 'Chủ đề API';
+      document.getElementById('drawerWhy').textContent = data.why || 'Đang cập nhật...';
+      document.getElementById('drawerRealWorld').textContent = data.realWorld || 'Đang cập nhật...';
+      
+      const iconContainer = document.getElementById('drawerIcon');
+      iconContainer.innerHTML = `<i class="${data.icon}"></i>`;
+      
+      const descContainer = document.getElementById('drawerDesc');
+      descContainer.innerHTML = `<p>${data.desc || ''}</p>`;
+
+      const keyPointsList = document.getElementById('drawerKeyPoints');
+      keyPointsList.innerHTML = '';
+      if (data.keyPoints && data.keyPoints.length > 0) {
+        data.keyPoints.forEach(point => {
+          const li = document.createElement('li');
+          li.className = "flex items-start gap-2 bg-slate-800/40 p-2 rounded-lg border border-slate-800";
+          li.innerHTML = `<i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> <span>${point}</span>`;
+          keyPointsList.appendChild(li);
+        });
+      }
+
+      updateMasteryUI(state.mastery[data.id] || 'todo');
+      detailDrawer.classList.remove('translate-x-full');
+    }
+
+    function closeDrawer() {
+      detailDrawer.classList.add('translate-x-full');
+      state.activeNodeId = null;
+    }
+
+    function updateMasteryUI(status) {
+      const buttons = document.querySelectorAll('#masteryButtonGroup button');
+      buttons.forEach(btn => {
+        if (btn.dataset.status === status) {
+          btn.classList.add('ring-2', 'ring-cyan-500', 'font-bold');
+        } else {
+          btn.classList.remove('ring-2', 'ring-cyan-500', 'font-bold');
+        }
+      });
+    }
+
+    document.querySelectorAll('#masteryButtonGroup button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!state.activeNodeId) return;
+        const status = btn.dataset.status;
+        state.mastery[state.activeNodeId] = status;
+        updateMasteryUI(status);
+        renderMindmap();
+      });
+    });
+
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+
+    /* --- PAN & ZOOM EVENT LISTENERS --- */
+    function setZoom(newZoom, centerX = window.innerWidth / 2, centerY = window.innerHeight / 2) {
+      const clampedZoom = Math.min(Math.max(newZoom, 0.35), 2.0);
+      
+      const factor = clampedZoom / state.zoom;
+      state.panX = centerX - (centerX - state.panX) * factor;
+      state.panY = centerY - (centerY - state.panY) * factor;
+      state.zoom = clampedZoom;
+
+      zoomDisplay.textContent = `${Math.round(state.zoom * 100)}%`;
+      renderMindmap();
+    }
+
+    function centerView() {
+      state.zoom = 0.85;
+      state.panX = window.innerWidth / 2;
+      state.panY = window.innerHeight / 2;
+      zoomDisplay.textContent = `${Math.round(state.zoom * 100)}%`;
+      renderMindmap();
+    }
+
+    // Mouse Drag to Pan
+    viewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#detailDrawer') || e.target.closest('.pillar-filter-btn') || e.target.closest('header')) return;
+      state.isDragging = true;
+      state.startX = e.clientX - state.panX;
+      state.startY = e.clientY - state.panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.isDragging) return;
+      state.panX = e.clientX - state.startX;
+      state.panY = e.clientY - state.startY;
+      renderMindmap();
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.isDragging = false;
+    });
+
+    // Touch Support for Mobile / Tablet
+    let initialPinchDistance = null;
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        state.isDragging = true;
+        state.startX = e.touches[0].clientX - state.panX;
+        state.startY = e.touches[0].clientY - state.panY;
+      } else if (e.touches.length === 2) {
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1 && state.isDragging) {
+        state.panX = e.touches[0].clientX - state.startX;
+        state.panY = e.touches[0].clientY - state.startY;
+        renderMindmap();
+      } else if (e.touches.length === 2 && initialPinchDistance) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = dist / initialPinchDistance;
+        setZoom(state.zoom * factor);
+        initialPinchDistance = dist;
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', () => {
+      state.isDragging = false;
+      initialPinchDistance = null;
+    });
+
+    // Mouse Wheel Zoom
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      setZoom(state.zoom * zoomFactor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    // Header Actions
+    document.getElementById('zoomInBtn').addEventListener('click', () => setZoom(state.zoom * 1.2));
+    document.getElementById('zoomOutBtn').addEventListener('click', () => setZoom(state.zoom * 0.8));
+    document.getElementById('fitViewBtn').addEventListener('click', centerView);
+
+    // Expand/Collapse All Toggle
+    let allExpanded = true;
+    document.getElementById('toggleExpandAllBtn').addEventListener('click', () => {
+      if (allExpanded) {
+        MINDMAP_DATA.children.forEach(c => state.collapsedNodes.add(c.id));
+        allExpanded = false;
+        document.getElementById('toggleExpandAllBtn').innerHTML = `<i class="fa-solid fa-compress"></i><span class="hidden md:inline">Thu gọn tất cả</span>`;
+      } else {
+        state.collapsedNodes.clear();
+        allExpanded = true;
+        document.getElementById('toggleExpandAllBtn').innerHTML = `<i class="fa-solid fa-expand"></i><span class="hidden md:inline">Mở rộng tất cả</span>`;
+      }
+      renderMindmap();
+    });
+
+    /* --- SEARCH & PILLAR FILTERS --- */
+    searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      clearSearchBtn.classList.toggle('hidden', state.searchQuery === '');
+      renderMindmap();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      state.searchQuery = '';
+      clearSearchBtn.classList.add('hidden');
+      renderMindmap();
+    });
+
+    // Pillar Filter Buttons
+    document.querySelectorAll('.pillar-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pillar-filter-btn').forEach(b => {
+          b.classList.remove('bg-cyan-600', 'text-white', 'border-cyan-400');
+          b.classList.add('bg-slate-900/80', 'text-slate-300');
+        });
+        btn.classList.remove('bg-slate-900/80', 'text-slate-300');
+        btn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400');
+
+        state.filterPillar = btn.dataset.pillar;
+        renderMindmap();
+      });
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDrawer();
+      }
+    });
+
+    // Window Resize Handler
+    window.addEventListener('resize', () => {
+      renderMindmap();
+    });
+
+    // INITIALIZATION ON DOM LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      centerView();
+    });
+  </script>
+</body>
+</html>
