@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Tư Duy Kiến Thức Nền Tảng Software Engineer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar and grid background */
+    .canvas-bg {
+      background-color: #0f172a;
+      background-image: 
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.08) 1px, transparent 0);
+      background-size: 28px 28px;
+    }
+    
+    .node-transition {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    }
+
+    .node-transition:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    /* Pulse effect on matched search nodes */
+    @keyframes searchPulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.8), 0 10px 25px -5px rgba(250, 204, 21, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(250, 204, 21, 1), 0 20px 30px -5px rgba(250, 204, 21, 0.6); }
+    }
+    .search-match {
+      animation: searchPulse 1.5s infinite;
+      border-color: #facc15 !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen w-screen overflow-hidden flex flex-col select-none">
+
+  <!-- TOP HEADER & CONTROLS -->
+  <header class="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-4 z-20 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+        <i class="fa-solid fa-brain text-white text-lg"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-slate-100 flex items-center gap-2">
+          Bản Đồ Nền Tảng Software Engineer
+          <span class="text-xs bg-indigo-500/20 text-indigo-400 font-medium px-2 py-0.5 rounded-full border border-indigo-500/30">Core Pillars</span>
+        </h1>
+        <p class="text-xs text-slate-400 hidden sm:block">Các khối kiến thức nền tảng cốt lõi ngoài API mà mọi lập trình viên cần nắm vững</p>
+      </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="relative w-40 sm:w-64">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input 
+          id="searchInput" 
+          type="text" 
+          placeholder="Tìm khái niệm (VD: ACID, Big O)..." 
+          class="w-full bg-slate-800/90 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+        />
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Quick Reset & Zoom actions -->
+      <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5">
+        <button id="zoomInBtn" title="Phóng to" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 rounded transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+        </button>
+        <button id="zoomOutBtn" title="Thu nhỏ" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 rounded transition">
+          <i class="fa-solid fa-minus text-xs"></i>
+        </button>
+        <button id="fitViewBtn" title="Về trung tâm" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 rounded transition">
+          <i class="fa-solid fa-compress text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Toggle Mode/Checklist View -->
+      <button id="toggleExpandAllBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium rounded-lg transition flex items-center gap-1.5">
+        <i class="fa-solid fa-expand"></i>
+        <span class="hidden md:inline">Mở rộng tất cả</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN MIND MAP WORKSPACE -->
+  <main class="flex-1 relative overflow-hidden canvas-bg cursor-grab active:cursor-grabbing" id="viewport">
+    <!-- SVG Connections Layer -->
+    <svg id="connectionsSvg" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+    
+    <!-- Nodes Container Layer (Transformed with Pan & Zoom) -->
+    <div id="mindmapCanvas" class="absolute inset-0 transform-gpu origin-top-left z-10"></div>
+
+    <!-- Floating Help / Mini Legend -->
+    <div class="absolute bottom-4 left-4 z-20 flex flex-col gap-2">
+      <div class="bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-xl p-3 text-xs shadow-xl max-w-xs hidden sm:block">
+        <div class="font-semibold text-slate-200 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-indigo-400"></i> Hướng dẫn tương tác
+        </div>
+        <ul class="text-slate-400 space-y-1.5">
+          <li>• <span class="text-slate-200 font-medium">Kéo chuột:</span> Di chuyển vùng nhìn (Pan).</li>
+          <li>• <span class="text-slate-200 font-medium">Cuộn chuột:</span> Phóng to / thu nhỏ (Zoom).</li>
+          <li>• <span class="text-slate-200 font-medium">Click vào node:</span> Xem bài học & giải thích chi tiết.</li>
+          <li>• <span class="text-slate-200 font-medium">Nút (+/-):</span> Đóng hoặc mở các nhánh con.</li>
+        </ul>
+      </div>
+      <div class="text-[11px] text-slate-400 px-2 py-1 bg-slate-900/80 rounded-md border border-slate-800 w-fit backdrop-blur">
+        Tỉ lệ zoom: <span id="zoomLevelDisplay" class="text-indigo-400 font-semibold">100%</span>
+      </div>
+    </div>
+
+    <!-- Pillar Quick Jump Filter Pills -->
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex flex-wrap items-center justify-center gap-1.5 max-w-4xl px-2">
+      <button data-pillar="all" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-600 text-white border border-indigo-400 shadow-sm transition">
+        Tất cả trụ cột
+      </button>
+      <button data-pillar="dsa" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-purple-300 border border-purple-500/30 transition">
+        DSA
+      </button>
+      <button data-pillar="db" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-sky-300 border border-sky-500/30 transition">
+        Cơ sở dữ liệu
+      </button>
+      <button data-pillar="os_net" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-emerald-300 border border-emerald-500/30 transition">
+        HĐH & Mạng
+      </button>
+      <button data-pillar="arch" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition">
+        Kiến trúc & Thiết kế
+      </button>
+      <button data-pillar="devops" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-rose-300 border border-rose-500/30 transition">
+        DevOps & Testing
+      </button>
+      <button data-pillar="sec" class="pillar-filter-btn px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-teal-300 border border-teal-500/30 transition">
+        Bảo mật
+      </button>
+    </div>
+  </main>
+
+  <!-- DETAIL DRAWER (SLIDE-OVER PANEL) -->
+  <aside id="detailDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[460px] bg-slate-900 border-l border-slate-800 shadow-2xl z-30 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+    <!-- Drawer Header -->
+    <div class="p-5 border-b border-slate-800 flex items-start justify-between bg-slate-900/90 backdrop-blur">
+      <div class="flex items-center gap-3">
+        <div id="drawerIcon" class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg border border-indigo-500/30 shrink-0">
+          <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        <div>
+          <span id="drawerPillarBadge" class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+            Trụ Cột
+          </span>
+          <h2 id="drawerTitle" class="text-base font-bold text-white mt-1 leading-snug">Tiêu đề khái niệm</h2>
+        </div>
+      </div>
+      <button id="closeDrawerBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Body -->
+    <div class="p-5 overflow-y-auto flex-1 space-y-5 text-sm">
+      <!-- Why it matters -->
+      <div class="bg-indigo-950/30 border border-indigo-800/40 rounded-xl p-4">
+        <div class="text-xs font-semibold text-indigo-300 flex items-center gap-1.5 mb-1.5">
+          <i class="fa-solid fa-bullseye"></i> Tại sao đây là nền tảng cốt lõi?
+        </div>
+        <p id="drawerWhy" class="text-slate-300 text-xs leading-relaxed"></p>
+      </div>
+
+      <!-- Core Explanation -->
+      <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-book-open text-slate-400"></i> Bản chất & Nguyên lý hoạt động
+        </h3>
+        <div id="drawerDesc" class="text-slate-200 text-xs leading-relaxed space-y-2"></div>
+      </div>
+
+      <!-- Key Sub-topics / Checklist -->
+      <div>
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-list-check text-slate-400"></i> Các khái niệm con trọng tâm
+        </h3>
+        <ul id="drawerKeyPoints" class="space-y-1.5 text-xs text-slate-300"></ul>
+      </div>
+
+      <!-- Practical Real-World Example / Application -->
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4">
+        <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 mb-1.5">
+          <i class="fa-solid fa-laptop-code"></i> Ứng dụng thực tế & Khi đi phỏng vấn
+        </div>
+        <p id="drawerRealWorld" class="text-slate-300 text-xs leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- Drawer Footer: Status / Mastery Toggle -->
+    <div class="p-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between text-xs">
+      <span class="text-slate-400">Trạng thái học tập:</span>
+      <div class="flex items-center gap-2" id="masteryButtonGroup">
+        <button data-status="todo" class="px-2.5 py-1 rounded-md text-xs border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">Chưa học</button>
+        <button data-status="learning" class="px-2.5 py-1 rounded-md text-xs border border-amber-600/40 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40">Đang học</button>
+        <button data-status="mastered" class="px-2.5 py-1 rounded-md text-xs border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40">Đã vững</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- JAVASCRIPT MIND MAP ENGINE -->
+  <script>
+    /* --- MIND MAP DATA HIERARCHY --- */
+    const MINDMAP_DATA = {
+      id: "root",
+      title: "Kỹ Sư Phần Mềm (SWE Foundations)",
+      subtitle: "Nền Tảng Cốt Lõi Vượt Ngoài API",
+      icon: "fa-solid fa-code",
+      color: "indigo",
+      side: "center",
+      why: "Là sự tổng hòa giữa tư duy tính toán, thiết kế hệ thống, tối ưu tài nguyên máy tính và bảo mật mà bất kỳ lập trình viên nào cũng cần để tạo ra phần mềm chuẩn sản xuất.",
+      desc: "Một kỹ sư phần mềm thực thụ không chỉ biết ghép nối các API mà còn hiểu rõ phần mềm thực thi bên dưới phần cứng như thế nào, dữ liệu được ghi chép bảo toàn ra sao, và làm thế nào để hàng triệu người dùng đồng thời không làm sập hệ thống.",
+      keyPoints: [
+        "Cấu trúc dữ liệu & Thuật toán (Tối ưu thuật toán)",
+        "Cơ sở dữ liệu & Quản lý dữ liệu (Lưu trữ và toàn vẹn)",
+        "Hệ điều hành & Mạng máy tính (Môi trường thực thi & Giao tiếp)",
+        "Kiến trúc & Thiết kế phần mềm (Khả năng mở rộng & Bảo trì)",
+        "DevOps & Quy trình chất lượng (Vận hành & Tự động hóa)",
+        "Bảo mật nền tảng (Phòng thủ & Bảo vệ dữ liệu)"
+      ],
+      realWorld: "Được dùng để giải quyết các nút thắt cổ chai (bottleneck), phân bổ tài nguyên hợp lý và vượt qua các bài phỏng vấn Technical System Design / Coding Interview tại các công ty công nghệ lớn.",
+      children: [
+        /* LEFT SIDE BRANCHES */
+        {
+          id: "dsa",
+          title: "1. Cấu Trúc Dữ Liệu & Thuật Toán",
+          subtitle: "Data Structures & Algorithms",
+          icon: "fa-solid fa-network-wired",
+          color: "purple",
+          side: "left",
+          why: "Quyết định trực tiếp tốc độ chạy và dung lượng RAM mà chương trình tiêu tốn. Code sạch nhưng thuật toán $O(N^2)$ thay vì $O(N)$ sẽ làm sập server khi lượng dữ liệu tăng đột biến.",
+          desc: "DSA rèn luyện tư duy phân tách bài toán phức tạp thành các bước tính toán logic tối ưu, cách tổ chức dữ liệu trong bộ nhớ sao cho việc tra cứu, thêm, sửa, xóa tốn ít chi phí nhất.",
+          keyPoints: [
+            "Cấu trúc dữ liệu tuyến tính: Array, Linked List, Stack, Queue",
+            "Hash Table / Hash Map: Tra cứu $O(1)$ thông qua hàm băm",
+            "Cấu trúc phân cấp: Binary Search Tree (BST), Heap, Trie, Đồ thị (Graph)",
+            "Độ phức tạp Big O: Time Complexity & Space Complexity",
+            "Mô hình thuật toán: Dynamic Programming, Recursion, Two Pointers, Sliding Window"
+          ],
+          realWorld: "Tối ưu công cụ tìm kiếm autocomplete bằng Trie, gợi ý bạn bè trên mạng xã hội bằng Graph BFS/DFS, xử lý hàng triệu transaction mỗi giây với Hash Table.",
+          children: [
+            {
+              id: "dsa_ds",
+              title: "Cấu Trúc Dữ Liệu",
+              subtitle: "Data Structures",
+              icon: "fa-solid fa-cubes",
+              color: "purple",
+              side: "left",
+              why: "Cách tổ chức bộ nhớ ảnh hưởng đến tốc độ đọc/ghi dữ liệu.",
+              desc: "Mỗi cấu trúc dữ liệu sinh ra để giải quyết một điểm nghẽn cụ thể: Array truy xuất index $O(1)$ nhưng chèn xóa chậm; Linked List chèn linh hoạt nhưng tốn thêm con trỏ; Hash Map cho tốc độ thần tốc dựa trên Hash Key.",
+              keyPoints: [
+                "Arrays & Dynamic Arrays (Vector/ArrayList)",
+                "Hash Map / Hash Set (Tránh xung đột Hash Collision)",
+                "Stack (LIFO - Call Stack, Undo/Redo) & Queue (FIFO - Message Queue)",
+                "Trees: Cây nhị phân, AVL Tree, Red-Black Tree, B-Tree",
+                "Graphs: Ma trận kề & Danh sách kề biểu diễn mạng lưới"
+              ],
+              realWorld: "Quản lý lượt gọi hàm đệ quy bằng Stack, hệ thống gửi email theo thứ tự đến trước xử lý trước bằng Queue."
+            },
+            {
+              id: "dsa_algo",
+              title: "Thuật Toán Cốt Lõi",
+              subtitle: "Core Algorithms",
+              icon: "fa-solid fa-calculator",
+              color: "purple",
+              side: "left",
+              why: "Là công thức từng bước để biến dữ liệu đầu vào thành kết quả đầu ra mong muốn với hiệu suất cao nhất.",
+              desc: "Nắm vững các mẫu tư duy kinh điển giúp bạn không phải 'phát minh lại bánh xe' khi đối mặt với các bài toán tối ưu và tìm kiếm.",
+              keyPoints: [
+                "Tìm kiếm nhị phân (Binary Search): Giảm độ phức tạp từ $O(N)$ xuống $O(\\log N)$",
+                "Sắp xếp: Quick Sort, Merge Sort (Độ phức tạp $O(N \\log N)$)",
+                "Quy hoạch động (Dynamic Programming): Lưu trữ bài toán con tránh tính lại",
+                "Duyệt đồ thị: BFS (tìm đường đi ngắn nhất không trọng số), DFS (khám phá toàn bộ không gian trạng thái)",
+                "Con trỏ đôi (Two Pointers) & Cửa sổ trượt (Sliding Window)"
+              ],
+              realWorld: "Tìm lộ trình di chuyển ngắn nhất trên bản đồ (Dijkstra), tính toán khoảng cách chỉnh sửa giữa 2 chuỗi văn bản (Levenshtein Distance)."
+            },
+            {
+              id: "dsa_bigo",
+              title: "Độ Phức Tạp (Big O)",
+              subtitle: "Time & Space Complexity",
+              icon: "fa-solid fa-chart-line",
+              color: "purple",
+              side: "left",
+              why: "Công cụ toán học chuẩn mực để đánh giá code chạy nhanh hay chậm khi lượng người dùng tăng từ 10 lên 10 triệu.",
+              desc: "Big O đo lường mức độ tăng trưởng thời gian chạy hoặc dung lượng bộ nhớ theo kích thước input $N$. Giúp bạn nhận diện sớm nguy cơ tràn RAM hoặc treo CPU trước khi đưa code lên production.",
+              keyPoints: [
+                "$O(1)$: Thời gian hằng số (truy cập phần tử mảng theo index)",
+                "$O(\\log N)$: Cực nhanh, thời gian tăng rất chậm khi $N$ tăng gấp đôi (Binary Search)",
+                "$O(N)$: Thời gian tuyến tính, tỷ lệ thuận với số phần tử",
+                "$O(N \\log N)$: Giới hạn lý thuyết của các thuật toán sắp xếp so sánh (Merge Sort)",
+                "$O(N^2)$ hoặc $O(2^N)$: Nguy hiểm, dễ gây timeout khi dữ liệu lớn"
+              ],
+              realWorld: "Quyết định chọn cấu trúc mảng hay hash table dựa trên số lượng thao tác đọc so với ghi mỗi giây."
+            }
+          ]
+        },
+        {
+          id: "os_net",
+          title: "2. Hệ Điều Hành & Mạng Máy Tính",
+          subtitle: "OS & Computer Networking",
+          icon: "fa-solid fa-server",
+          color: "emerald",
+          side: "left",
+          why: "Code của bạn không chạy trong chân không; nó chạy trên Hệ điều hành và giao tiếp qua đường truyền Mạng vật lý.",
+          desc: "Hiểu sâu về OS và Network giúp bạn trả lời các câu hỏi: Tại sao xảy ra lỗi rò rỉ bộ nhớ (Memory Leak)? Tại sao ứng dụng bị Deadlock? Tại sao gói tin bị trễ (Latency)?",
+          keyPoints: [
+            "Process (Tiến trình) vs Thread (Luồng thực thi)",
+            "Quản lý bộ nhớ: Stack vs Heap, Virtual Memory, Paging",
+            "Đồng bộ hóa: Race Condition, Mutex, Semaphore, Deadlock",
+            "Mô hình mạng: OSI 7 tầng & Kiến trúc TCP/IP",
+            "Giao thức mạng cốt lõi: TCP vs UDP, DNS, TLS/SSL Handshake"
+          ],
+          realWorld: "Cấu hình số lượng worker process trong Nginx / Node.js Cluster, gỡ lỗi kết nối chập chờn giữa các Microservices bằng lệnh `tcpdump` và `curl`.",
+          children: [
+            {
+              id: "os_core",
+              title: "Hệ Điều Hành & Luồng",
+              subtitle: "Processes, Threads & Memory",
+              icon: "fa-solid fa-microchip",
+              color: "emerald",
+              side: "left",
+              why: "Tận dụng tối đa sức mạnh CPU đa nhân và quản lý RAM không bị treo máy.",
+              desc: "Process sở hữu vùng nhớ riêng biệt; Thread chia sẻ chung vùng nhớ của Process. Lập trình đa luồng (Multithreading) tăng tốc độ nhưng dễ gây xung đột dữ liệu nếu không khóa an toàn.",
+              keyPoints: [
+                "Process vs Thread: Chi phí tạo và chuyển ngữ cảnh (Context Switching)",
+                "Bộ nhớ Stack (cấp phát tĩnh, tự giải phóng) vs Heap (cấp phát động, cần Garbage Collection)",
+                "Deadlock: Hiện tượng 2 luồng giữ tài nguyên của nhau và chờ nhau vô tận",
+                "Mutex & Semaphore: Cơ chế bảo vệ tài nguyên dùng chung (Critical Section)",
+                "Linux CLI: `top`, `htop`, `grep`, `lsof`, `kill` - kỹ năng sống còn khi quản trị server"
+              ],
+              realWorld: "Tối ưu hóa Thread Pool trong Java Spring Boot hoặc cơ chế Event Loop đơn luồng bất đồng bộ trong Node.js."
+            },
+            {
+              id: "net_core",
+              title: "Mạng Máy Tính & Giao Thức",
+              subtitle: "TCP/IP, DNS & Sockets",
+              icon: "fa-solid fa-globe",
+              color: "emerald",
+              side: "left",
+              why: "Mọi hệ thống phân tán đều phải gửi nhận dữ liệu qua mạng internet đầy rủi ro và độ trễ.",
+              desc: "Mô hình mạng chia tách các tầng trách nhiệm rõ ràng từ phần cứng, định tuyến IP, vận chuyển tin cậy (TCP) đến ứng dụng (HTTP/WebSockets).",
+              keyPoints: [
+                "TCP (Bắt tay 3 bước, đảm bảo toàn vẹn thứ tự gói tin, có kiểm soát nghẽn)",
+                "UDP (Truyền nhanh không cần bắt tay, chấp nhận mất gói, dùng cho Livestream, Game, VoIP)",
+                "DNS (Hệ thống phân giải tên miền thành địa chỉ IP qua bản ghi A, CNAME, AAAA)",
+                "Mã hóa TLS/SSL: Trao đổi khóa bất đối xứng và mã hóa đối xứng bảo vệ đường truyền",
+                "Network Sockets: Cơ chế mở kết nối socket 2 chiều ở mức thấp"
+              ],
+              realWorld: "Khắc phục hiện tượng video call bị giật bằng UDP, tăng tốc độ website với cơ chế giữ kết nối HTTP Keep-Alive và TCP Fast Open."
+            }
+          ]
+        },
+        {
+          id: "sec",
+          title: "3. Bảo Mật Nền Tảng (Security)",
+          subtitle: "Security Fundamentals",
+          icon: "fa-solid fa-shield-halved",
+          color: "teal",
+          side: "left",
+          why: "Một lỗ hổng bảo mật sơ đẳng có thể làm rò rỉ dữ liệu của hàng triệu khách hàng và phá hủy uy tín của doanh nghiệp.",
+          desc: "Bảo mật không phải là bước làm sau cùng mà phải được tích hợp vào tư duy lập trình (Security by Design) ngay từ dòng code đầu tiên.",
+          keyPoints: [
+            "Xác thực (Authentication) vs Phân quyền (Authorization)",
+            "Mã hóa đối xứng (AES) vs Bất đối xứng (RSA) vs Hàm băm một chiều (Hashing)",
+            "Lỗ hổng OWASP Top 10: SQL Injection, XSS, CSRF, Broken Object Level Auth",
+            "Quản lý bí mật (Secrets Management): Không hardcode API Key, DB Password vào Git"
+          ],
+          realWorld: "Lưu mật khẩu người dùng vào DB bắt buộc dùng Bcrypt kèm Salt; luôn validate và sanitize dữ liệu đầu vào để chặn tin tặc tấn công SQL Injection.",
+          children: [
+            {
+              id: "sec_auth",
+              title: "AuthN & AuthZ",
+              subtitle: "Authentication & Authorization",
+              icon: "fa-solid fa-user-lock",
+              color: "teal",
+              side: "left",
+              why: "Kiểm soát chính xác danh tính người gọi và quyền hạn thực hiện hành động.",
+              desc: "Authentication trả lời câu hỏi 'Bạn là ai?' (qua Password, OTP, Biometrics). Authorization trả lời 'Bạn được phép làm gì?' (thường dùng mô hình RBAC - Role-Based Access Control).",
+              keyPoints: [
+                "Session-based (Lưu trạng thái phiên trên server, dùng Cookie)",
+                "Token-based (JWT - Stateless, client tự mang chữ ký số kiểm tra)",
+                "OAuth 2.0 & OpenID Connect: Ủy quyền truy cập an toàn của bên thứ 3",
+                "Mô hình phân quyền: RBAC (theo vai trò) vs ABAC (theo thuộc tính ngữ cảnh)"
+              ],
+              realWorld: "Ngăn chặn người dùng sửa đổi URL `GET /invoice/10` để xem trộm hóa đơn số `11` của người khác (lỗi BOLA / IDOR)."
+            },
+            {
+              id: "sec_crypto",
+              title: "Mã Hóa & OWASP",
+              subtitle: "Cryptography & Common Vulnerabilities",
+              icon: "fa-solid fa-key",
+              color: "teal",
+              side: "left",
+              why: "Bảo vệ dữ liệu cả khi đang truyền tải (In-transit) lẫn khi lưu trữ trong đĩa (At-rest).",
+              desc: "Hiểu rõ sự khác biệt giữa Encrypt (có thể giải mã bằng Key), Hash (băm 1 chiều không thể dịch ngược), và Encode (chỉ là đổi bảng mã như Base64 - hoàn toàn KHÔNG có tính bảo mật).",
+              keyPoints: [
+                "Băm mật khẩu: Bcrypt, Argon2 kèm Salt để chống bảng tra Rainbow Table",
+                "SQL Injection: Luôn dùng Prepared Statements / Parameterized Queries",
+                "Cross-Site Scripting (XSS): Escape toàn bộ ký tự HTML khi render dữ liệu do user nhập",
+                "CSRF (Cross-Site Request Forgery): Dùng CSRF Token và cờ SameSite cho Cookie"
+              ],
+              realWorld: "Hacker chèn chuỗi `' OR '1'='1` vào ô đăng nhập để bypass xác thực nếu hệ thống không dùng Prepared Statement."
+            }
+          ]
+        },
+
+        /* RIGHT SIDE BRANCHES */
+        {
+          id: "db",
+          title: "4. Cơ Sở Dữ Liệu & Quản Trị",
+          subtitle: "Databases & Data Management",
+          icon: "fa-solid fa-database",
+          color: "sky",
+          side: "right",
+          why: "Ứng dụng có thể viết lại, nhưng mất dữ liệu là mất vĩnh viễn. Tốc độ và tính toàn vẹn của ứng dụng phụ thuộc 80% vào thiết kế Database.",
+          desc: "Bao gồm cả CSDL quan hệ (SQL) đảm bảo tính toàn vẹn khắt khe, lẫn CSDL phi quan hệ (NoSQL) cho khả năng ghi nhận nhanh và mở rộng linh hoạt.",
+          keyPoints: [
+            "SQL & RDBMS: Chuẩn hóa dữ liệu (Normalization), Khóa ngoại, Schema",
+            "Tính chất ACID: Bảo đảm an toàn cho các giao dịch tài chính",
+            "NoSQL & Định lý CAP: MongoDB, Redis, Cassandra",
+            "Tối ưu hiệu năng: Đánh chỉ mục Indexing (B-Tree), Caching Strategy"
+          ],
+          realWorld: "Tạo Index cho cột `created_at` giúp giảm thời gian truy vấn 10 triệu bản ghi từ 15 giây xuống 20 miligiây; dùng Redis Cache chặn hàng nghìn lượt query trùng lặp vào Database chính.",
+          children: [
+            {
+              id: "db_sql",
+              title: "SQL & Tính Chất ACID",
+              subtitle: "Relational DB & Transactions",
+              icon: "fa-solid fa-table",
+              color: "sky",
+              side: "right",
+              why: "Bảo đảm dữ liệu luôn đúng đắn tuyệt đối, đặc biệt trong các tác vụ trừ tiền ngân hàng hay đặt vé.",
+              desc: "Transaction gộp nhiều câu lệnh vào 1 lượt xử lý. Hoặc tất cả đều thành công (Commit), hoặc một câu lệnh lỗi thì quay về trạng thái ban đầu (Rollback).",
+              keyPoints: [
+                "Atomicity (Nguyên tử): Tất cả hoặc không có gì",
+                "Consistency (Nhất quán): Dữ liệu luôn tuân thủ mọi ràng buộc schema",
+                "Isolation (Cô lập): Các giao dịch chạy đồng thời không can thiệp kết quả của nhau",
+                "Durability (Bền vững): Dữ liệu một khi đã commit sẽ không mất ngay cả khi cúp điện",
+                "Thiết kế Schema & Chuẩn hóa: Giảm dư thừa dữ liệu (1NF, 2NF, 3NF)"
+              ],
+              realWorld: "Chuyển tiền: Tài khoản A trừ 100k, Tài khoản B cộng 100k; nếu bước cộng cho B bị lỗi, hệ thống tự động hoàn lại tiền cho A nhờ cơ chế Rollback của ACID."
+            },
+            {
+              id: "db_tuning",
+              title: "Tối Ưu & NoSQL",
+              subtitle: "Indexing, Caching & CAP",
+              icon: "fa-solid fa-bolt",
+              color: "sky",
+              side: "right",
+              why: "Khi dữ liệu vượt mức hàng triệu dòng, Full Table Scan sẽ làm Database cạn kiệt CPU.",
+              desc: "Database Indexing tổ chức dữ liệu theo cây B-Tree giúp tìm kiếm theo độ phức tạp $O(\\log N)$. NoSQL linh hoạt schema, hỗ trợ lưu trữ Key-Value siêu tốc hoặc Document.",
+              keyPoints: [
+                "B-Tree Indexing: Hiểu cách thức hoạt động và cái giá phải trả khi ghi/chèn mới dữ liệu",
+                "Query Execution Plan (`EXPLAIN ANALYZE`): Đọc và nhận diện nút thắt trong câu lệnh SQL",
+                "In-memory Cache (Redis/Memcached): Tăng tốc độ đọc dữ liệu tĩnh lên gấp hàng trăm lần",
+                "Định lý CAP: Trong hệ thống phân tán chỉ có thể chọn tối đa 2 trong 3 yếu tố: Consistency, Availability, Partition Tolerance"
+              ],
+              realWorld: "Sử dụng mô hình Cache-Aside: App kiểm tra Redis trước, nếu không có dữ liệu (Cache Miss) mới truy vấn PostgreSQL và nạp lại vào Redis."
+            }
+          ]
+        },
+        {
+          id: "arch",
+          title: "5. Kiến Trúc & Thiết Kế Phần Mềm",
+          subtitle: "Design Principles & Architecture",
+          icon: "fa-solid fa-sitemap",
+          color: "amber",
+          side: "right",
+          why: "Viết code chạy được thì dễ, viết code để đồng đội 6 tháng sau đọc vẫn hiểu và dễ dàng bổ sung tính năng mới mới là đẳng cấp của kỹ sư.",
+          desc: "Định hình cách chia nhỏ mã nguồn, phân tách trách nhiệm giữa các lớp (Layers), và thiết kế hệ thống có khả năng chịu tải hàng triệu người dùng.",
+          keyPoints: [
+            "Tư duy lập trình: Lập trình hướng đối tượng (OOP) & Lập trình hàm (FP)",
+            "Nguyên lý thiết kế SOLID: Bộ quy tắc vàng cho clean code",
+            "Design Patterns kinh điển: Creational, Structural, Behavioral",
+            "Kiến trúc hệ thống: Monolith vs Microservices, Event-Driven Architecture",
+            "Khả năng mở rộng (Scalability): Scale dọc (Vertical) vs Scale ngang (Horizontal)"
+          ],
+          realWorld: "Tách một ứng dụng Monolith cồng kềnh thành các service thanh toán, thông báo độc lập; dùng Message Queue (Kafka) để nhận đơn hàng tránh nghẽn server vào ngày sale Black Friday.",
+          children: [
+            {
+              id: "arch_solid",
+              title: "OOP & Nguyên Lý SOLID",
+              subtitle: "Clean Code & Object Oriented",
+              icon: "fa-solid fa-shapes",
+              color: "amber",
+              side: "right",
+              why: "Tránh tạo ra mã nguồn 'mì ăn liền' (Spaghetti Code) mà sửa chỗ này lại làm hỏng chỗ khác.",
+              desc: "5 nguyên lý SOLID giúp code giảm bớt sự phụ thuộc lẫn nhau (Loose Coupling) và nâng cao tính gắn kết (High Cohesion).",
+              keyPoints: [
+                "S - Single Responsibility: Mỗi class/module chỉ nên có một lý do duy nhất để thay đổi",
+                "O - Open/Closed: Mở rộng tính năng bằng cách thêm mới, đóng việc sửa đổi code cũ đã chạy ổn định",
+                "L - Liskov Substitution: Class con phải thay thế được class cha mà không làm gãy logic",
+                "I - Interface Segregation: Tách nhỏ interface thay vì một interface gom quá nhiều hàm",
+                "D - Dependency Inversion: Phụ thuộc vào Abstraction (Interface), không phụ thuộc vào Concretion"
+              ],
+              realWorld: "Tạo interface `PaymentMethod` có hàm `pay()`. Khi thêm cổng thanh toán mới (Apple Pay), chỉ cần tạo class mới hiện thực interface mà không sửa đổi code giỏ hàng cũ."
+            },
+            {
+              id: "arch_system",
+              title: "Kiến Trúc Hệ Thống (System Design)",
+              subtitle: "Scalability & Message Queues",
+              icon: "fa-solid fa-diagram-project",
+              color: "amber",
+              side: "right",
+              why: "Đảm bảo hệ thống vẫn phản hồi nhanh chóng khi lưu lượng truy cập tăng vọt đột biến.",
+              desc: "Thiết kế hệ thống phân tán bao gồm cân bằng tải (Load Balancer), máy chủ không lưu trạng thái (Stateless Servers), và hàng đợi xử lý bất đồng bộ.",
+              keyPoints: [
+                "Load Balancing: Thuật toán Round Robin, Least Connections để san sẻ lưu lượng",
+                "Horizontal Scaling: Thêm nhiều máy chủ nhỏ giá rẻ thay vì nâng cấp CPU/RAM máy chủ đơn lẻ",
+                "Message Queues (Kafka, RabbitMQ): Xử lý bất đồng bộ và chống nghẽn tác vụ nặng",
+                "Monolith vs Microservices: Hiểu chi phí vận hành mạng và sự phức tạp trước khi chia nhỏ"
+              ],
+              realWorld: "Khi khách bấm đặt hàng, server bắn ngay một event vào RabbitMQ và trả về 'Đã tiếp nhận'. Một background worker độc lập sẽ xử lý gửi email và trừ kho sau."
+            }
+          ]
+        },
+        {
+          id: "devops",
+          title: "6. DevOps, Testing & Quy Trình",
+          subtitle: "DevOps, CI/CD & Code Quality",
+          icon: "fa-solid fa-gears",
+          color: "rose",
+          side: "right",
+          why: "Lập trình viên không thể nói câu 'Code chạy ngon trên máy em mà!'. Bạn phải tự tin đưa sản phẩm ra môi trường thực tế an toàn và tự động.",
+          desc: "Cung cấp các công cụ và quy trình tiêu chuẩn để tự động kiểm thử, đóng gói phần mềm trong môi trường độc lập và triển khai liên tục không gián đoạn.",
+          keyPoints: [
+            "Quản lý mã nguồn với Git: Branching model, Rebase, Resolve conflicts",
+            "Đóng gói với Docker & Containerization: Chạy nhất quán ở mọi nơi",
+            "CI/CD Pipeline: Tự động hóa build, test và release lên Cloud",
+            "Kim tự tháp kiểm thử (Testing Pyramid): Unit Test, Integration Test, E2E Test"
+          ],
+          realWorld: "Mỗi khi tạo Pull Request trên GitHub, bot CI tự động chạy 500 bài Unit Test kiểm tra lỗi; sau khi merge, hệ thống tự động build Docker Image và cập nhật server trong 2 phút."
+          ,children: [
+            {
+              id: "devops_git_docker",
+              title: "Git & Docker Container",
+              subtitle: "Version Control & Virtualization",
+              icon: "fa-brands fa-docker",
+              color: "rose",
+              side: "right",
+              why: "Giải quyết bài toán làm việc nhóm và loại bỏ triệt để lỗi môi trường không tương thích.",
+              desc: "Git giúp theo dõi lịch sử chỉnh sửa mã nguồn và rollback khi cần. Docker đóng gói cả code, runtime (Node/Python) và thư viện vào một Container khép kín.",
+              keyPoints: [
+                "Git Flow & Trunk-Based Development: Chiến lược rẽ nhánh hiệu quả",
+                "Git Rebase vs Merge: Giữ lịch sử commit gọn gàng, rõ ràng",
+                "Dockerfile & Images: Các layer bộ nhớ đệm giúp build ứng dụng siêu nhanh",
+                "Docker Compose: Khởi chạy cùng lúc App, Database PostgreSQL và Redis chỉ bằng một lệnh"
+              ],
+              realWorld: "Lập trình viên mới vào công ty chỉ cần cài Docker và chạy `docker-compose up` là có sẵn môi trường lập trình đầy đủ mà không mất 2 ngày cài đặt thủ công."
+            },
+            {
+              id: "devops_test_ci",
+              title: "Kiểm Thử (Testing) & CI/CD",
+              subtitle: "Automated Testing & Pipelines",
+              icon: "fa-solid fa-vial-circle-check",
+              color: "rose",
+              side: "right",
+              why: "Bảo đảm tự tin refactor code mà không sợ làm chết các tính năng hiện có của khách hàng.",
+              desc: "Kiểm thử tự động giúp phát hiện lỗi sai ngay từ khâu viết mã. CI/CD loại bỏ hoàn toàn các thao tác copy file bằng tay lên server đầy rủi ro.",
+              keyPoints: [
+                "Unit Test: Kiểm thử từng hàm nhỏ cô lập với mock data (nhanh và rẻ nhất)",
+                "Integration Test: Kiểm tra các module giao tiếp ăn khớp với nhau (App gọi đúng Database)",
+                "Test-Driven Development (TDD): Viết test trước khi viết code nghiệp vụ",
+                "CI/CD Tools: GitHub Actions, GitLab CI, Jenkins tự động triển khai"
+              ],
+              realWorld: "Trước ngày ra mắt tính năng mới, bộ Unit Test tự động phát hiện một hàm tính thuế bị làm tròn sai số, cứu công ty khỏi tổn thất doanh thu lớn."
+            }
+          ]
+        }
+      ]
+    };
+
+    /* --- CANVAS ENGINE STATE --- */
+    const state = {
+      zoom: 1,
+      panX: 0,
+      panY: 0,
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      collapsedNodes: new Set(),
+      filterPillar: 'all',
+      searchQuery: '',
+      activeNodeId: null,
+      mastery: {} // stored in-memory
+    };
+
+    // DOM Elements
+    const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('mindmapCanvas');
+    const svg = document.getElementById('connectionsSvg');
+    const zoomDisplay = document.getElementById('zoomLevelDisplay');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const detailDrawer = document.getElementById('detailDrawer');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+
+    /* --- COLOR UTILITIES --- */
+    const colorThemes = {
+      indigo: {
+        bg: "bg-indigo-950/80 border-indigo-500/50 hover:border-indigo-400 text-indigo-100",
+        badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40",
+        line: "#6366f1",
+        glow: "shadow-indigo-500/20"
+      },
+      purple: {
+        bg: "bg-purple-950/80 border-purple-500/50 hover:border-purple-400 text-purple-100",
+        badge: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+        line: "#a855f7",
+        glow: "shadow-purple-500/20"
+      },
+      emerald: {
+        bg: "bg-emerald-950/80 border-emerald-500/50 hover:border-emerald-400 text-emerald-100",
+        badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+        line: "#10b981",
+        glow: "shadow-emerald-500/20"
+      },
+      teal: {
+        bg: "bg-teal-950/80 border-teal-500/50 hover:border-teal-400 text-teal-100",
+        badge: "bg-teal-500/20 text-teal-300 border-teal-500/40",
+        line: "#14b8a6",
+        glow: "shadow-teal-500/20"
+      },
+      sky: {
+        bg: "bg-sky-950/80 border-sky-500/50 hover:border-sky-400 text-sky-100",
+        badge: "bg-sky-500/20 text-sky-300 border-sky-500/40",
+        line: "#0ea5e9",
+        glow: "shadow-sky-500/20"
+      },
+      amber: {
+        bg: "bg-amber-950/80 border-amber-500/50 hover:border-amber-400 text-amber-100",
+        badge: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+        line: "#f59e0b",
+        glow: "shadow-amber-500/20"
+      },
+      rose: {
+        bg: "bg-rose-950/80 border-rose-500/50 hover:border-rose-400 text-rose-100",
+        badge: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+        line: "#f43f5e",
+        glow: "shadow-rose-500/20"
+      }
+    };
+
+    /* --- LAYOUT CALCULATION --- */
+    // Positions nodes logically left & right radiating from the root node
+    function calculateLayout() {
+      const positions = new Map();
+      const connections = [];
+
+      const rootX = 0;
+      const rootY = 0;
+      positions.set("root", { x: rootX, y: rootY, side: "center", data: MINDMAP_DATA });
+
+      const leftBranches = MINDMAP_DATA.children.filter(c => c.side === "left");
+      const rightBranches = MINDMAP_DATA.children.filter(c => c.side === "right");
+
+      // Vertical spacing parameters
+      const verticalGapBranch = 210;
+      const horizontalBranchOffset = 380;
+      const horizontalChildOffset = 360;
+
+      // Layout side branches helper
+      function layoutSide(branches, isRight) {
+        const dir = isRight ? 1 : -1;
+        const totalHeight = (branches.length - 1) * verticalGapBranch;
+        let startY = -totalHeight / 2;
+
+        branches.forEach((branch, idx) => {
+          // Check pillar filter
+          if (state.filterPillar !== 'all' && state.filterPillar !== branch.id) {
+            return;
+          }
+
+          const branchX = rootX + dir * horizontalBranchOffset;
+          const branchY = startY + idx * verticalGapBranch;
+          positions.set(branch.id, { x: branchX, y: branchY, side: isRight ? "right" : "left", data: branch });
+
+          connections.push({
+            from: "root",
+            to: branch.id,
+            color: colorThemes[branch.color]?.line || "#6366f1",
+            fromX: rootX,
+            fromY: rootY,
+            toX: branchX,
+            toY: branchY,
+            isRight: isRight
+          });
+
+          // Layout children of branch if not collapsed
+          if (!state.collapsedNodes.has(branch.id) && branch.children && branch.children.length > 0) {
+            const childVerticalGap = 110;
+            const childrenTotalH = (branch.children.length - 1) * childVerticalGap;
+            let childStartY = branchY - childrenTotalH / 2;
+
+            branch.children.forEach((child, cIdx) => {
+              const childX = branchX + dir * horizontalChildOffset;
+              const childY = childStartY + cIdx * childVerticalGap;
+              positions.set(child.id, { x: childX, y: childY, side: isRight ? "right" : "left", data: child });
+
+              connections.push({
+                from: branch.id,
+                to: child.id,
+                color: colorThemes[branch.color]?.line || "#6366f1",
+                fromX: branchX,
+                fromY: branchY,
+                toX: childX,
+                toY: childY,
+                isRight: isRight
+              });
+            });
+          }
+        });
+      }
+
+      layoutSide(leftBranches, false);
+      layoutSide(rightBranches, true);
+
+      return { positions, connections };
+    }
+
+    /* --- RENDER NODES AND BEZIER CURVES --- */
+    function renderMindmap() {
+      const { positions, connections } = calculateLayout();
+      canvas.innerHTML = '';
+      svg.innerHTML = '';
+
+      // Set canvas transform
+      canvas.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+
+      // Render Bezier Connections in SVG
+      connections.forEach(conn => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        
+        // Transform coordinates into screen space
+        const sx = conn.fromX * state.zoom + state.panX;
+        const sy = conn.fromY * state.zoom + state.panY;
+        const ex = conn.toX * state.zoom + state.panX;
+        const ey = conn.toY * state.zoom + state.panY;
+
+        // Smooth cubic bezier curve control points
+        const dx = (ex - sx) * 0.55;
+        const c1x = sx + dx;
+        const c1y = sy;
+        const c2x = ex - dx;
+        const c2y = ey;
+
+        path.setAttribute("d", `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${ex} ${ey}`);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", conn.color);
+        path.setAttribute("stroke-width", Math.max(1.8 * state.zoom, 1.2));
+        path.setAttribute("stroke-opacity", "0.65");
+        path.setAttribute("stroke-linecap", "round");
+        svg.appendChild(path);
+      });
+
+      // Render Node Elements
+      positions.forEach((node, id) => {
+        const data = node.data;
+        const isRoot = id === "root";
+        const hasChildren = data.children && data.children.length > 0;
+        const isCollapsed = state.collapsedNodes.has(id);
+        const theme = colorThemes[data.color] || colorThemes.indigo;
+        const isMastered = state.mastery[id] === 'mastered';
+        const isLearning = state.mastery[id] === 'learning';
+
+        // Check search match
+        let isMatch = false;
+        if (state.searchQuery.trim() !== '') {
+          const q = state.searchQuery.toLowerCase();
+          const matchTitle = data.title.toLowerCase().includes(q);
+          const matchSub = data.subtitle?.toLowerCase().includes(q);
+          const matchDesc = data.desc?.toLowerCase().includes(q);
+          const matchKeys = data.keyPoints?.some(k => k.toLowerCase().includes(q));
+          isMatch = matchTitle || matchSub || matchDesc || matchKeys;
+        }
+
+        const el = document.createElement('div');
+        el.className = `absolute node-transition cursor-pointer rounded-2xl border backdrop-blur-md p-3.5 shadow-xl ${theme.bg} ${theme.glow} ${isMatch ? 'search-match' : ''}`;
+        el.style.left = `${node.x}px`;
+        el.style.top = `${node.y}px`;
+        el.style.transform = `translate(-50%, -50%)`;
+        el.style.width = isRoot ? '320px' : (hasChildren ? '290px' : '270px');
+        el.dataset.nodeId = id;
+
+        // Mastery badge
+        let statusBadge = '';
+        if (isMastered) {
+          statusBadge = `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] px-1.5 py-0.5 rounded-md font-medium"><i class="fa-solid fa-check mr-1"></i>Đã vững</span>`;
+        } else if (isLearning) {
+          statusBadge = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] px-1.5 py-0.5 rounded-md font-medium"><i class="fa-solid fa-clock mr-1"></i>Đang học</span>`;
+        }
+
+        // Toggle children button
+        let toggleBtn = '';
+        if (hasChildren && !isRoot) {
+          toggleBtn = `
+            <button class="toggle-children-btn w-6 h-6 rounded-full bg-slate-800/90 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center text-xs transition ml-1" data-node-id="${id}" title="${isCollapsed ? 'Mở rộng nhánh' : 'Thu gọn nhánh'}">
+              <i class="fa-solid ${isCollapsed ? 'fa-plus' : 'fa-minus'}"></i>
+            </button>
+          `;
+        }
+
+        el.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm shadow-md border ${theme.badge}">
+              <i class="${data.icon}"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="text-[10px] font-semibold tracking-wider uppercase opacity-75 truncate">${data.subtitle || ''}</span>
+                <div class="flex items-center gap-1">
+                  ${statusBadge}
+                  ${toggleBtn}
+                </div>
+              </div>
+              <h3 class="text-xs font-bold leading-tight truncate text-white">${data.title}</h3>
+            </div>
+          </div>
+          ${!isRoot ? `
+            <div class="mt-2 pt-2 border-t border-slate-700/40 flex items-center justify-between text-[11px] text-slate-300">
+              <span class="opacity-80 truncate max-w-[200px]">${data.keyPoints ? data.keyPoints[0].split(':')[0] : 'Nhấn để xem chi tiết'}</span>
+              <span class="text-indigo-400 font-semibold shrink-0 hover:underline flex items-center gap-1">
+                Chi tiết <i class="fa-solid fa-chevron-right text-[9px]"></i>
+              </span>
+            </div>
+          ` : `
+            <p class="mt-2 text-[11px] text-slate-300 leading-relaxed border-t border-slate-700/40 pt-2 line-clamp-2">${data.why}</p>
+          `}
+        `;
+
+        // Click to open drawer
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.toggle-children-btn')) {
+            return; // handled by button listener
+          }
+          openDetailDrawer(data);
+        });
+
+        // Toggle button click listener
+        const toggleEl = el.querySelector('.toggle-children-btn');
+        if (toggleEl) {
+          toggleEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.collapsedNodes.has(id)) {
+              state.collapsedNodes.delete(id);
+            } else {
+              state.collapsedNodes.add(id);
+            }
+            renderMindmap();
+          });
+        }
+
+        canvas.appendChild(el);
+      });
+    }
+
+    /* --- DETAIL DRAWER HANDLERS --- */
+    function openDetailDrawer(data) {
+      state.activeNodeId = data.id;
+
+      // Populate Drawer Elements
+      document.getElementById('drawerTitle').textContent = data.title;
+      document.getElementById('drawerPillarBadge').textContent = data.subtitle || 'Khái niệm';
+      document.getElementById('drawerWhy').textContent = data.why || 'Đang cập nhật...';
+      document.getElementById('drawerRealWorld').textContent = data.realWorld || 'Đang cập nhật...';
+      
+      const iconContainer = document.getElementById('drawerIcon');
+      iconContainer.innerHTML = `<i class="${data.icon}"></i>`;
+      
+      const descContainer = document.getElementById('drawerDesc');
+      descContainer.innerHTML = `<p>${data.desc || ''}</p>`;
+
+      const keyPointsList = document.getElementById('drawerKeyPoints');
+      keyPointsList.innerHTML = '';
+      if (data.keyPoints && data.keyPoints.length > 0) {
+        data.keyPoints.forEach(point => {
+          const li = document.createElement('li');
+          li.className = "flex items-start gap-2 bg-slate-800/40 p-2 rounded-lg border border-slate-800";
+          li.innerHTML = `<i class="fa-solid fa-check text-indigo-400 text-xs mt-0.5"></i> <span>${point}</span>`;
+          keyPointsList.appendChild(li);
+        });
+      }
+
+      // Update active status buttons
+      updateMasteryUI(state.mastery[data.id] || 'todo');
+
+      // Slide open
+      detailDrawer.classList.remove('translate-x-full');
+    }
+
+    function closeDrawer() {
+      detailDrawer.classList.add('translate-x-full');
+      state.activeNodeId = null;
+    }
+
+    function updateMasteryUI(status) {
+      const buttons = document.querySelectorAll('#masteryButtonGroup button');
+      buttons.forEach(btn => {
+        if (btn.dataset.status === status) {
+          btn.classList.add('ring-2', 'ring-indigo-500', 'font-bold');
+        } else {
+          btn.classList.remove('ring-2', 'ring-indigo-500', 'font-bold');
+        }
+      });
+    }
+
+    // Mastery status toggle click
+    document.querySelectorAll('#masteryButtonGroup button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!state.activeNodeId) return;
+        const status = btn.dataset.status;
+        state.mastery[state.activeNodeId] = status;
+        updateMasteryUI(status);
+        renderMindmap();
+      });
+    });
+
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+
+    /* --- PAN & ZOOM LOGIC --- */
+    function setZoom(newZoom, centerX = window.innerWidth / 2, centerY = window.innerHeight / 2) {
+      const clampedZoom = Math.min(Math.max(newZoom, 0.35), 2.0);
+      
+      // Zoom towards center point
+      const factor = clampedZoom / state.zoom;
+      state.panX = centerX - (centerX - state.panX) * factor;
+      state.panY = centerY - (centerY - state.panY) * factor;
+      state.zoom = clampedZoom;
+
+      zoomDisplay.textContent = `${Math.round(state.zoom * 100)}%`;
+      renderMindmap();
+    }
+
+    function centerView() {
+      state.zoom = 0.85;
+      state.panX = window.innerWidth / 2;
+      state.panY = window.innerHeight / 2;
+      zoomDisplay.textContent = `${Math.round(state.zoom * 100)}%`;
+      renderMindmap();
+    }
+
+    // Mouse Drag to Pan
+    viewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#detailDrawer') || e.target.closest('.pillar-filter-btn') || e.target.closest('header')) return;
+      state.isDragging = true;
+      state.startX = e.clientX - state.panX;
+      state.startY = e.clientY - state.panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.isDragging) return;
+      state.panX = e.clientX - state.startX;
+      state.panY = e.clientY - state.startY;
+      renderMindmap();
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.isDragging = false;
+    });
+
+    // Touch Support for Mobile / Tablet
+    let initialPinchDistance = null;
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        state.isDragging = true;
+        state.startX = e.touches[0].clientX - state.panX;
+        state.startY = e.touches[0].clientY - state.panY;
+      } else if (e.touches.length === 2) {
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1 && state.isDragging) {
+        state.panX = e.touches[0].clientX - state.startX;
+        state.panY = e.touches[0].clientY - state.startY;
+        renderMindmap();
+      } else if (e.touches.length === 2 && initialPinchDistance) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = dist / initialPinchDistance;
+        setZoom(state.zoom * factor);
+        initialPinchDistance = dist;
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', () => {
+      state.isDragging = false;
+      initialPinchDistance = null;
+    });
+
+    // Mouse Wheel to Zoom
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      setZoom(state.zoom * zoomFactor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    // Header Action Buttons
+    document.getElementById('zoomInBtn').addEventListener('click', () => setZoom(state.zoom * 1.2));
+    document.getElementById('zoomOutBtn').addEventListener('click', () => setZoom(state.zoom * 0.8));
+    document.getElementById('fitViewBtn').addEventListener('click', centerView);
+
+    // Expand/Collapse All Branches
+    let allExpanded = true;
+    document.getElementById('toggleExpandAllBtn').addEventListener('click', () => {
+      if (allExpanded) {
+        // Collapse all branch children
+        MINDMAP_DATA.children.forEach(c => state.collapsedNodes.add(c.id));
+        allExpanded = false;
+        document.getElementById('toggleExpandAllBtn').innerHTML = `<i class="fa-solid fa-compress"></i><span class="hidden md:inline">Thu gọn tất cả</span>`;
+      } else {
+        state.collapsedNodes.clear();
+        allExpanded = true;
+        document.getElementById('toggleExpandAllBtn').innerHTML = `<i class="fa-solid fa-expand"></i><span class="hidden md:inline">Mở rộng tất cả</span>`;
+      }
+      renderMindmap();
+    });
+
+    /* --- SEARCH & PILLAR FILTERS --- */
+    searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      clearSearchBtn.classList.toggle('hidden', state.searchQuery === '');
+      renderMindmap();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      state.searchQuery = '';
+      clearSearchBtn.classList.add('hidden');
+      renderMindmap();
+    });
+
+    // Pillar Filter Buttons
+    document.querySelectorAll('.pillar-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pillar-filter-btn').forEach(b => {
+          b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-400');
+          b.classList.add('bg-slate-900/80', 'text-slate-300');
+        });
+        btn.classList.remove('bg-slate-900/80', 'text-slate-300');
+        btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-400');
+
+        state.filterPillar = btn.dataset.pillar;
+        renderMindmap();
+      });
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDrawer();
+      }
+    });
+
+    // Window Resize Handler
+    window.addEventListener('resize', () => {
+      renderMindmap();
+    });
+
+    // INITIALIZATION
+    window.addEventListener('DOMContentLoaded', () => {
+      centerView();
+    });
+  </script>
+</body>
+</html>
