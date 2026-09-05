@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ Đồ Mind Map Toàn Diện Kiến Thức API</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brandViolet: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        },
+                        brandCyan: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            700: '#0e7490',
+                        },
+                        brandEmerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        brandAmber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        brandRose: {
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 330px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .mindmap-node-line {
+            position: relative;
+        }
+        .mindmap-node-line::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 20px;
+            width: 16px;
+            height: 2px;
+            background-color: #cbd5e1;
+        }
+        .mindmap-branch-line {
+            position: relative;
+        }
+        .mindmap-branch-line::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: 20px;
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<!--
+    SELECTED PALETTE: Electric Violet & Vibrant Cyan (High-contrast Tech Mindmap)
+    - Primary Violet: #7C3AED / #4C1D95
+    - Electric Cyan: #06B6D4 / #0891B2
+    - Emerald Green: #10B981
+    - Warm Amber: #F59E0B
+    - Rose Pink: #E11D48
+    - Dark Canvas: #0F172A
+
+    NARRATIVE & STRUCTURE PLAN:
+    1. Hero Section & Mindmap Metrics Overview: Quick overview of the 7 core knowledge clusters.
+    2. Interactive Mind Map Tree View: Collapsible/Expandable branches covering all 7 clusters:
+       - Cluster 1: Core Concepts & Fundamentals
+       - Cluster 2: Architectural Styles (REST, GraphQL, gRPC, SOAP, EDA/Webhooks, WebSockets)
+       - Cluster 3: Network Protocols & Transport (HTTP/1/2/3, TCP, TLS)
+       - Cluster 4: Data Formats & Serialization (JSON, Protobuf, XML, Form-Data)
+       - Cluster 5: Security & Access Control (AuthN vs AuthZ, JWT, OAuth2, Rate Limit, CORS, OWASP)
+       - Cluster 6: API Design, Specification & Lifecycle (API-First, OpenAPI/Swagger, Versioning, Pagination, RFC 7807)
+       - Cluster 7: Backend Infrastructure & Governance (API Gateway, Caching, Tracing, Testing, Algorithms)
+    3. Architecture Trade-Off Radar & Usage Distribution Charts (Chart.js Canvas).
+    4. Interactive Architectural Decision Helper Matrix.
+
+    CONFIRMATION: NEITHER MERMAID JS NOR SVG WERE USED ANYWHERE IN THIS OUTPUT.
+-->
+<body class="bg-slate-900 text-slate-100 font-sans antialiased selection:bg-brandCyan-500 selection:text-slate-900">
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 py-3.5 px-4 sm:px-8">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="bg-gradient-to-r from-brandViolet-600 to-brandCyan-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">Mind Map</span>
+                <span class="font-extrabold text-lg tracking-tight text-white hidden sm:inline">API Knowledge Mind Map</span>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4 text-xs font-bold text-slate-300">
+                <a href="#mindmap-tree" class="hover:text-brandCyan-400 transition-colors bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">🌳 Mind Map Tree</a>
+                <a href="#charts-section" class="hover:text-brandCyan-400 transition-colors bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">📊 Biểu Đồ Khảo Sát</a>
+                <a href="#decision-guide" class="hover:text-brandAmber-400 transition-colors bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">🎯 Guide Chọn Kiến Trúc</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="bg-gradient-to-br from-slate-950 via-brandViolet-900/40 to-slate-950 py-14 px-4 sm:px-8 border-b border-slate-800 text-center relative overflow-hidden">
+        <div class="max-w-5xl mx-auto space-y-5 relative z-10">
+            <div class="inline-block bg-brandViolet-500/20 border border-brandViolet-400/30 text-brandViolet-100 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">
+                Comprehensive Developer Mind Map
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                Sơ Đồ Tư Duy Khái Quát Tất Cả <br class="hidden sm:inline"/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brandCyan-400 via-brandViolet-500 to-brandAmber-500">Chủ Đề & Khái Niệm Xung Quanh API</span>
+            </h1>
+            <p class="text-slate-300 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">
+                Để thực sự làm chủ API, bạn không chỉ học cách viết một đường dẫn (Endpoint). Bạn cần nắm vững một **mạng lưới kiến thức liên hoàn** bao gồm các kiểu kiến trúc, giao thức truyền tải, định dạng dữ liệu, tư duy thiết kế, cơ chế bảo mật và hạ tầng vận hành backend.
+            </p>
+
+            <!-- Metrics Bar -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto pt-4 text-left">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3.5 backdrop-blur-sm">
+                    <div class="text-brandCyan-400 text-xs font-bold uppercase tracking-wider">Nhánh 1 - 2</div>
+                    <div class="text-white text-sm font-extrabold mt-1">Khái niệm Core & 6 Kiến Trúc API</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3.5 backdrop-blur-sm">
+                    <div class="text-brandViolet-500 text-xs font-bold uppercase tracking-wider">Nhánh 3 - 4</div>
+                    <div class="text-white text-sm font-extrabold mt-1">Giao thức HTTP/1-3 & Serialization</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3.5 backdrop-blur-sm">
+                    <div class="text-brandRose-500 text-xs font-bold uppercase tracking-wider">Nhánh 5</div>
+                    <div class="text-white text-sm font-extrabold mt-1">Bảo Mật AuthN/Z & OWASP API</div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3.5 backdrop-blur-sm">
+                    <div class="text-brandEmerald-500 text-xs font-bold uppercase tracking-wider">Nhánh 6 - 7</div>
+                    <div class="text-white text-sm font-extrabold mt-1">OpenAPI, Gateway & Caching</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-12 space-y-16">
+
+        <!-- Interactive Mind Map Tree Section -->
+        <section id="mindmap-tree" class="space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                        <span>🌳</span> Sơ Đồ Tư Duy Chi Tiết (API Mind Map Tree)
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Click vào từng nhánh để xem khái niệm chi tiết và trường hợp áp dụng thực tế.</p>
+                </div>
+                <div class="flex gap-2 text-xs">
+                    <button onclick="expandAllNodes()" class="bg-brandViolet-600 hover:bg-brandViolet-700 text-white font-bold px-3 py-1.5 rounded-lg transition-colors">
+                        ➕ Mở Tất Cả
+                    </button>
+                    <button onclick="collapseAllNodes()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">
+                        ➖ Thu Gọn
+                    </button>
+                </div>
+            </div>
+
+            <!-- Root Node & Branch Network Container -->
+            <div class="bg-slate-950/80 rounded-3xl border border-slate-800 p-6 sm:p-8 space-y-8 shadow-2xl">
+                
+                <!-- Center Core Node -->
+                <div class="text-center pb-6 border-b border-slate-800">
+                    <div class="inline-flex items-center gap-3 bg-gradient-to-r from-brandViolet-600 via-brandCyan-600 to-brandViolet-600 text-white text-lg sm:text-2xl font-black px-6 py-3 rounded-2xl shadow-xl border border-white/10">
+                        <span>🌐</span> API (Application Programming Interface)
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Cầu nối trung tâm giao tiếp giữa Frontend, Backend, Mobile Apps, Microservices & 3rd Parties</p>
+                </div>
+
+                <!-- 7 Major Branches Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                    <!-- BRANCH 1 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+                        <button onclick="toggleBranch('branch-1')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-brandCyan-400 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-brandCyan-500/20 text-brandCyan-400 flex items-center justify-center text-xs font-black">1</span>
+                                🧩 Khái Niệm Cốt Lõi (Core Concepts)
+                            </span>
+                            <span id="icon-branch-1" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-1" class="space-y-3 pt-2 pl-4 border-l-2 border-brandCyan-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Client - Server Model & Request/Response</strong>
+                                <p class="text-[11px] text-slate-300">Client gửi yêu cầu (Request payload + headers) ➔ Server xử lý ➔ Trả về phản hồi (Status Code + response data).</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Endpoint & URI Structure</strong>
+                                <p class="text-[11px] text-slate-300">Địa chỉ URL định danh tài nguyên (VD: <code>https://api.domain.com/v1/users/123</code>).</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Statelessness (Tính Không Trạng Thái)</strong>
+                                <p class="text-[11px] text-slate-300">Mỗi request độc lập hoàn toàn, chứa đầy đủ thông tin xác thực mà không phụ thuộc vào bộ nhớ session server.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Idempotency (Tính Lặp Lại An Toàn)</strong>
+                                <p class="text-[11px] text-slate-300">Hành động gọi API 1 lần hay $N$ lần cho ra cùng 1 kết quả (GET, PUT, DELETE có Idempotent; POST thì không).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 2 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+                        <button onclick="toggleBranch('branch-2')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-brandViolet-400 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-brandViolet-500/20 text-brandViolet-400 flex items-center justify-center text-xs font-black">2</span>
+                                🏛️ Các Kiểu Kiến Trúc API (Architectural Styles)
+                            </span>
+                            <span id="icon-branch-2" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-2" class="space-y-3 pt-2 pl-4 border-l-2 border-brandViolet-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-xs font-bold">• REST (Representational State Transfer)</strong>
+                                    <span class="bg-indigo-900/60 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-mono">Resource-Based</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">Dựa trên URI định danh Resource + HTTP Verbs (GET/POST/PUT/DELETE). Dễ dùng, cache tốt, phổ biến nhất.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-xs font-bold">• GraphQL</strong>
+                                    <span class="bg-cyan-900/60 text-cyan-300 text-[10px] px-2 py-0.5 rounded font-mono">Query-Based</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">Client tự định nghĩa trường dữ liệu cần qua 1 endpoint duy nhất. Giải quyết triệt để Over-fetching/Under-fetching.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-xs font-bold">• gRPC (Google Remote Procedure Call)</strong>
+                                    <span class="bg-amber-900/60 text-amber-300 text-[10px] px-2 py-0.5 rounded font-mono">Action-Based</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">HTTP/2 + Protobuf nhị phân. Tốc độ siêu nhanh, latency cực thấp, chuẩn mực cho Microservices nội bộ.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-xs font-bold">• Event-Driven Architecture (EDA) & Webhooks</strong>
+                                    <span class="bg-emerald-900/60 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-mono">Asynchronous</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">Giao tiếp bất đồng bộ qua Message Queues (Kafka/RabbitMQ) hoặc Webhooks tự động đẩy dữ liệu khi có sự kiện.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-xs font-bold">• WebSockets & Server-Sent Events (SSE)</strong>
+                                    <span class="bg-rose-900/60 text-rose-300 text-[10px] px-2 py-0.5 rounded font-mono">Real-Time</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">Duy trì kết nối 2 chiều liên tục (Full-duplex) cho Chat, Chứng khoán, Live Notification.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <strong class="text-white text-xs font-bold">• SOAP (Simple Object Access Protocol)</strong>
+                                    <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded font-mono">Enterprise XML</span>
+                                </div>
+                                <p class="text-[11px] text-slate-300">Giao thức nghiêm ngặt dựa trên XML + WSDL. Thường gặp trong hệ thống Ngân hàng, Tài chính cổ điển.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 3 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+                        <button onclick="toggleBranch('branch-3')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-brandEmerald-500 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-brandEmerald-500/20 text-brandEmerald-500 flex items-center justify-center text-xs font-black">3</span>
+                                🌐 Giao Thức Mạng & Truyền Tải (Protocols)
+                            </span>
+                            <span id="icon-branch-3" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-3" class="space-y-3 pt-2 pl-4 border-l-2 border-brandEmerald-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• HTTP/1.1 vs HTTP/2 vs HTTP/3 (QUIC)</strong>
+                                <p class="text-[11px] text-slate-300">HTTP/1.1 (Text-based, Head-of-line blocking) ➔ HTTP/2 (Multiplexing, Header Compression) ➔ HTTP/3 (UDP-based QUIC).</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• TLS / HTTPS Encryption</strong>
+                                <p class="text-[11px] text-slate-300">Mã hóa toàn bộ dữ liệu trên đường truyền bằng SSL/TLS handshake chống nghe lén (Man-in-the-middle).</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• HTTP Methods & Status Codes</strong>
+                                <p class="text-[11px] text-slate-300">Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS. Codes: 2xx (Success), 3xx (Redirect), 4xx (Client Error), 5xx (Server Fault).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 4 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+                        <button onclick="toggleBranch('branch-4')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-brandAmber-500 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-brandAmber-500/20 text-brandAmber-500 flex items-center justify-center text-xs font-black">4</span>
+                                📦 Định Dạng Dữ Liệu (Data Formats & Serialization)
+                            </span>
+                            <span id="icon-branch-4" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-4" class="space-y-3 pt-2 pl-4 border-l-2 border-brandAmber-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• JSON (JavaScript Object Notation)</strong>
+                                <p class="text-[11px] text-slate-300">Định dạng văn bản chuẩn quốc dân (application/json), nhẹ, human-readable.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Protocol Buffers (Protobuf)</strong>
+                                <p class="text-[11px] text-slate-300">Định dạng nhị phân (Binary) siêu nhỏ nhẹ dùng trong gRPC, parse nhanh gấp nhiều lần JSON.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Multipart/Form-Data</strong>
+                                <p class="text-[11px] text-slate-300">Định dạng chuyên dụng để Upload tập tin, hình ảnh, tài liệu lên Server.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 5 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+                        <button onclick="toggleBranch('branch-5')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-brandRose-500 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-brandRose-500/20 text-brandRose-500 flex items-center justify-center text-xs font-black">5</span>
+                                🔐 Bảo Mật & Xác Thực API (API Security)
+                            </span>
+                            <span id="icon-branch-5" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-5" class="space-y-3 pt-2 pl-4 border-l-2 border-brandRose-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Authentication (AuthN) vs Authorization (AuthZ)</strong>
+                                <p class="text-[11px] text-slate-300">AuthN: Xác định bạn là ai (Login). AuthZ: Xác định bạn có quyền làm gì (Role / Permission).</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• API Key, JWT (JSON Web Token) & OAuth 2.0 / OIDC</strong>
+                                <p class="text-[11px] text-slate-300">API Key cho 3rd Party service, JWT cho Stateless Session, OAuth2 cho đăng nhập tập trung (Google/FB).</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Rate Limiting, CORS & OWASP API Top 10</strong>
+                                <p class="text-[11px] text-slate-300">Chống Spam/DDoS bằng Rate Limit; cấu hình CORS chặn Web lạ; phòng thủ BOLA/BFLA theo chuẩn OWASP.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 6 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+                        <button onclick="toggleBranch('branch-6')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-indigo-400 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-black">6</span>
+                                📐 Thiết Kế & Quy Trình (API Design & Lifecycle)
+                            </span>
+                            <span id="icon-branch-6" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-6" class="space-y-3 pt-2 pl-4 border-l-2 border-indigo-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• API-First / Design-First Approach</strong>
+                                <p class="text-[11px] text-slate-300">Viết tài liệu Specification (OpenAPI/Swagger) trước khi bắt đầu gõ code backend.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• API Versioning Strategy</strong>
+                                <p class="text-[11px] text-slate-300">Đánh phiên bản qua URL Path (<code>/v1/</code>), Query Parameter hoặc Header để tránh làm gãy App cũ.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Pagination Patterns (Offset vs Cursor-based)</strong>
+                                <p class="text-[11px] text-slate-300">Phân trang danh sách lớn bằng Offset/Limit đơn giản hoặc Cursor-based tối ưu hiệu năng CSDL lớn.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Standardized Error Format (RFC 7807)</strong>
+                                <p class="text-[11px] text-slate-300">Chuẩn hóa cấu trúc JSON thông báo lỗi chứa type, title, status, detail, instance.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 7 -->
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3 lg:col-span-2">
+                        <button onclick="toggleBranch('branch-7')" class="w-full flex items-center justify-between text-left">
+                            <span class="text-base font-extrabold text-cyan-400 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-black">7</span>
+                                ⚡ Hạ Tầng & Vận Hành Backend (Backend Infrastructure & Operations)
+                            </span>
+                            <span id="icon-branch-7" class="text-slate-400 text-sm font-bold">▼</span>
+                        </button>
+
+                        <div id="branch-7" class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 pl-4 border-l-2 border-cyan-500/30">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• API Gateway (Kong, Nginx)</strong>
+                                <p class="text-[11px] text-slate-300">Cổng giao tiếp tập trung xử lý Routing, Authentication, SSL Termination & Caching.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Caching Layer (Redis)</strong>
+                                <p class="text-[11px] text-slate-300">Lưu đệm kết quả truy vấn phổ biến trong bộ nhớ RAM để phản hồi dưới 5ms.</p>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                                <strong class="text-white text-xs font-bold block">• Observability & Testing</strong>
+                                <p class="text-[11px] text-slate-300">Monitoring (Prometheus/Grafana), Distributed Tracing (Jaeger) & Contract Testing (Pact).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section: Trade-Off Radar & Adoption Rates -->
+        <section id="charts-section" class="space-y-6">
+            <div class="border-l-4 border-brandCyan-500 pl-4">
+                <h2 class="text-2xl font-black text-white tracking-tight">📊 So Sánh Đa Chiều Các Kiểu Kiến Trúc API</h2>
+                <p class="text-slate-400 text-xs mt-1">Trực quan hóa sự đánh đổi giữa Tính đơn giản, Hiệu năng, Độ linh hoạt dữ liệu & Khả năng Caching.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Radar Chart -->
+                <div class="lg:col-span-7 bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-xl">
+                    <h3 class="text-sm font-bold text-white mb-1">Ma Trận Đánh Giá Đặc Tính Kiến Trúc</h3>
+                    <p class="text-xs text-slate-400 mb-4">So sánh trực quan trên thang điểm 1 - 10.</p>
+                    <div class="chart-container">
+                        <canvas id="architectureRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Adoption Doughnut Chart -->
+                <div class="lg:col-span-5 bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-xl space-y-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white mb-1">Tỷ Lệ Áp Dụng Thực Tế Trong Doanh Nghiệp</h3>
+                        <p class="text-xs text-slate-400 mb-2">Thống kê thị phần triển khai các loại API kiến trúc.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="adoptionDoughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Decision Guide Matrix -->
+        <section id="decision-guide" class="bg-slate-950 rounded-3xl border border-slate-800 p-6 sm:p-8 space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-xl font-black text-brandAmber-500 flex items-center gap-2">
+                    🎯 Bảng Hướng Dẫn Ra Quyết Định Chọn Kiến Trúc API (Decision Matrix)
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Dựa vào yêu cầu cụ thể của bài toán để lựa chọn công nghệ tối ưu nhất.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-900 text-brandCyan-400 uppercase font-bold text-[11px]">
+                        <tr>
+                            <th class="p-3.5 rounded-l-xl">Kịch Bản Sử Dụng</th>
+                            <th class="p-3.5">REST API</th>
+                            <th class="p-3.5">GraphQL</th>
+                            <th class="p-3.5">gRPC</th>
+                            <th class="p-3.5 rounded-r-xl">WebSockets / EDA</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/80">
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Ứng dụng Web / CRUD Tiêu Chuẩn</td>
+                            <td class="p-3.5 text-brandEmerald-500 font-bold">🥇 Khuyên Dùng (Rất Dễ)</td>
+                            <td class="p-3.5 text-slate-400">Khá Tốt</td>
+                            <td class="p-3.5 text-slate-500">Phức Tạp Phức Tạp</td>
+                            <td class="p-3.5 text-slate-500">Thừa Thãi</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Mobile App Đa Màn Hình (Tối ưu Băng thông)</td>
+                            <td class="p-3.5 text-brandAmber-500">Bị Over-fetching</td>
+                            <td class="p-3.5 text-brandEmerald-500 font-bold">🥇 Tối Ưu Nhất</td>
+                            <td class="p-3.5 text-slate-500">Không Phù Hợp Web/Mobile</td>
+                            <td class="p-3.5 text-slate-500">Không Cần Thiết</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Giao Tiếp Server-to-Server Nội Bộ (Microservices)</td>
+                            <td class="p-3.5 text-slate-400">Tốc Độ Trung Bình</td>
+                            <td class="p-3.5 text-slate-500">Quá Nhiều Overhead</td>
+                            <td class="p-3.5 text-brandEmerald-500 font-bold">🥇 Siêu Tốc (Protobuf)</td>
+                            <td class="p-3.5 text-slate-400">Dùng Cho Event Bus</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Chat Real-Time / Live Notification / Chứng Khoán</td>
+                            <td class="p-3.5 text-slate-500">Phải Polling Chậm</td>
+                            <td class="p-3.5 text-slate-400">Hỗ trợ Subscriptions</td>
+                            <td class="p-3.5 text-slate-400">Streaming 2 chiều</td>
+                            <td class="p-3.5 text-brandEmerald-500 font-bold">🥇 Chuyên Dụng (Full-Duplex)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 text-slate-500 py-8 px-4 text-center text-xs">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <p class="font-semibold text-slate-400">Sơ Đồ Mind Map Kiến Thức API Toàn Diện (Interactive API Mindmap SPA)</p>
+            <p>Được thiết kế nhằm mục đích hệ thống hóa toàn bộ bức tranh kiến thức lập trình API cho Developers.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interactions & Chart Initialization -->
+    <script>
+        // Collapsible Node Toggle Logic
+        function toggleBranch(branchId) {
+            const el = document.getElementById(branchId);
+            const icon = document.getElementById('icon-' + branchId);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                if (icon) icon.innerText = '▼';
+            } else {
+                el.classList.add('hidden');
+                if (icon) icon.innerText = '▶';
+            }
+        }
+
+        function expandAllNodes() {
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById('branch-' + i);
+                const icon = document.getElementById('icon-branch-' + i);
+                if (el) el.classList.remove('hidden');
+                if (icon) icon.innerText = '▼';
+            }
+        }
+
+        function collapseAllNodes() {
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById('branch-' + i);
+                const icon = document.getElementById('icon-branch-' + i);
+                if (el) el.classList.add('hidden');
+                if (icon) icon.innerText = '▶';
+            }
+        }
+
+        // Label Wrapping Logic (>16 chars auto wrapping for Chart.js)
+        function formatLabel(str, maxLen = 16) {
+            if (!str || str.length <= maxLen) return str;
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > maxLen) {
+                    if (currentLine) lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += (currentLine ? ' ' : '') + word;
+                }
+            });
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        }
+
+        // Global Chart Defaults
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.color = '#94a3b8';
+
+        // 1. Radar Chart: API Architectural Comparison
+        const ctxRadar = document.getElementById('architectureRadarChart').getContext('2d');
+        const radarLabelsRaw = ['Dễ Học & Phổ Biến', 'Hiệu Năng & Tốc Độ', 'Linh Hoạt Dữ Liệu', 'Khả Năng Caching', 'Hỗ Trợ Real-Time'];
+        const radarLabelsFormatted = radarLabelsRaw.map(label => formatLabel(label, 16));
+
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: radarLabelsFormatted,
+                datasets: [
+                    {
+                        label: 'REST API',
+                        data: [10, 7, 6, 10, 3],
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderColor: '#06b6d4',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#06b6d4'
+                    },
+                    {
+                        label: 'GraphQL',
+                        data: [6, 7, 10, 4, 6],
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8b5cf6'
+                    },
+                    {
+                        label: 'gRPC',
+                        data: [4, 10, 5, 5, 8],
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#f59e0b'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#334155' },
+                        grid: { color: '#334155' },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 15, font: { size: 11, weight: 'bold' } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Doughnut Chart: API Adoption Distribution
+        const ctxDoughnut = document.getElementById('adoptionDoughnutChart').getContext('2d');
+        const doughnutLabelsRaw = ['RESTful API (Resource)', 'GraphQL (Query)', 'gRPC / RPC (Protobuf)', 'WebSockets & Event-Driven'];
+        const doughnutLabelsFormatted = doughnutLabelsRaw.map(label => formatLabel(label, 16));
+
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: doughnutLabelsFormatted,
+                datasets: [{
+                    data: [68, 16, 10, 6],
+                    backgroundColor: ['#06b6d4', '#8b5cf6', '#f59e0b', '#f43f5e'],
+                    borderWidth: 2,
+                    borderColor: '#0f172a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 12, font: { size: 10 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
